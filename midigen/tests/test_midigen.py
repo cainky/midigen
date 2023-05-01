@@ -1,3 +1,4 @@
+import os
 from ..midigen.midigen import MidiGen
 from unittest import TestCase
 from mido import bpm2tempo
@@ -7,6 +8,8 @@ class TestMidigen(TestCase):
     def setUp(self):
         self.midi_gen = MidiGen()
 
+    def tearDown(self):
+        os.remove('test.mid')
 
     def test_midi_gen_creation(self):
         self.assertIsNotNone(self.midi_gen)
@@ -75,7 +78,7 @@ class TestMidigen(TestCase):
         self.assertEqual(quantized_value, 128)
 
     def test_save_and_load(self):
-        self.midi_gen.save('./test.mid')
+        self.midi_gen.save('test.mid')
         loaded_midi_file = self.midi_gen.load_midi_file('./test.mid')
         self.assertEqual(loaded_midi_file, self.midi_gen.midi_file)
 
