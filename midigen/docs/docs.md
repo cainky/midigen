@@ -24,7 +24,7 @@ midi_gen.add_arpeggio([60, 64, 67], 64, 500, 125)
 
 # Save the MIDI file
 midi_gen.save('output.mid')
-
+```
 
 ### Class Methods
 
