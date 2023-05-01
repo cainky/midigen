@@ -30,7 +30,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        poetry install
+        cd midigen && poetry install
 
     - name: Run tests
-      run: cd midigen && poetry run python -m unittest discover
+      run: poetry run python -m unittest discover
