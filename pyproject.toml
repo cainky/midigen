@@ -8,10 +8,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 mido = "^1.2.10"
+music21 = "^8.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.2.2"
+flake8 = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]
