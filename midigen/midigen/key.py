@@ -1,10 +1,5 @@
 class Key:
     def __init__(self, name: str, mode: str = "major"):
-        valid_keys = self.all_valid_keys()
-        if name not in valid_keys():
-            raise ValueError(
-                f"Invalid key. Please use a valid key from the list: {format(valid_keys)}"
-            )
         self.name = name
         self.mode = mode
 
