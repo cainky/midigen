@@ -7,7 +7,10 @@ from music21 import scale as m21_scale
 
 class MidiGen:
     def __init__(
-        self, tempo: int = 120, time_signature: Tuple = (4, 4), key_signature: Key = "C"
+        self,
+        tempo: int = 120,
+        time_signature: Tuple = (4, 4),
+        key_signature: Key = Key("C"),
     ):
         """
         Initialize a new MidiGen instance.
