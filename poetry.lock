@@ -517,14 +517,14 @@ files = [
 
 [[package]]
 name = "music21"
-version = "8.1.0"
+version = "8.3.0"
 description = "A Toolkit for Computer-Aided Musical Analysis and Computational Musicology."
 category = "main"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "music21-8.1.0-py3-none-any.whl", hash = "sha256:acb73e62712ea27d2927bbde89cd68ae1fc878f0ea1ec912c1addc4426fe5fc4"},
-    {file = "music21-8.1.0.tar.gz", hash = "sha256:75512fd21c38acc7ce59eae5efb9d69c7d8d1e710d1507f9945285e443d5d505"},
+    {file = "music21-8.3.0-py3-none-any.whl", hash = "sha256:02e602e99fdac7528d42c41aac635a4de070cd41478dea30c7c2c08d79960be4"},
+    {file = "music21-8.3.0.tar.gz", hash = "sha256:28627bf5e47707ac5e6ae5161c3a2160f154b796cf4aca992e5d46847caa7ca6"},
 ]
 
 [package.dependencies]
@@ -930,4 +930,4 @@ tests = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "e1f18a2ce4f368a4d384cf4ada937620e9eac55f2b95ab43fda7c8d58a5cb6e8"
+content-hash = "97c6c67916a1ebadc08879108aaf688ea1488ae17e5eb9a77a86b715c50064da"
