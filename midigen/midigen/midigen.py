@@ -10,7 +10,7 @@ class MidiGen:
         self,
         tempo: int = 120,
         time_signature: Tuple = (4, 4),
-        key_signature: Key = Key("C"),
+        key_signature: Key = None,
     ):
         """
         Initialize a new MidiGen instance.
@@ -24,6 +24,8 @@ class MidiGen:
         self._midi_file.tracks.append(self._track)
         self.set_tempo(tempo)
         self.set_time_signature(*time_signature)
+        if key_signature is None:
+            key_signature = Key("C")
         self.set_key_signature(key_signature)
 
     def __str__(self):
@@ -90,13 +92,6 @@ class MidiGen:
 
         :param key: An instance of the Key class representing the key signature.
         """
-        valid_keys = Key.all_valid_keys()
-
-        if key not in valid_keys:
-            raise ValueError(
-                f"Invalid key. Please use a valid key from the list: {format(valid_keys)}"
-            )
-
         self.key_signature = key
         self._track.append(MetaMessage("key_signature", key=str(key)))
 

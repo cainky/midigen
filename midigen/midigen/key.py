@@ -1,5 +1,36 @@
+VALID_KEYS = [
+    (note, mode)
+    for note in [
+        "A",
+        "A#",
+        "Ab",
+        "B",
+        "Bb",
+        "C",
+        "C#",
+        "Cb",
+        "D",
+        "D#",
+        "Db",
+        "E",
+        "Eb",
+        "F",
+        "F#",
+        "Fb",
+        "G",
+        "G#",
+        "Gb",
+    ]
+    for mode in ["major", "minor"]
+]
+
 class Key:
     def __init__(self, name: str, mode: str = "major"):
+        if (name, mode) not in VALID_KEYS:
+            raise ValueError(
+                f"Invalid key. Please use a valid key from the list: {format(VALID_KEYS)}"
+            )
+
         self.name = name
         self.mode = mode
 
@@ -9,30 +40,7 @@ class Key:
     def __repr__(self):
         return f"Key(name='{self.name}', mode='{self.mode}')"
 
-    @classmethod
-    def all_valid_keys(cls):
-        return [
-            cls(note, mode)
-            for note in [
-                "A",
-                "A#",
-                "Ab",
-                "B",
-                "Bb",
-                "C",
-                "C#",
-                "Cb",
-                "D",
-                "D#",
-                "Db",
-                "E",
-                "Eb",
-                "F",
-                "F#",
-                "Fb",
-                "G",
-                "G#",
-                "Gb",
-            ]
-            for mode in ["major", "minor"]
-        ]
+    def __eq__(self, other):
+        if isinstance(other, Key):
+            return self.name == other.name and self.mode == other.mode
+        return False

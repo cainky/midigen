@@ -1,6 +1,7 @@
 import os
 from ..midigen.midigen import MidiGen
-from unittest import TestCase
+from unittest import TestCase, main
+
 from mido import bpm2tempo, Message
 
 
@@ -52,6 +53,7 @@ class TestMidigen(TestCase):
         self.assertEqual(note_on_msg.note, 60)
         self.assertEqual(note_off_msg.type, "note_off")
         self.assertEqual(note_off_msg.note, 60)
+        self.assertEqual(len(self.midi_gen.track), 5)
 
     def test_add_chord(self):
         self.midi_gen.add_chord([60, 64, 67], 64, 500)
@@ -114,3 +116,6 @@ class TestMidigen(TestCase):
 
         with self.assertRaises(ValueError):
             self.midi_gen.add_note(128, 64, 500)
+
+if __name__ == '__main__':
+    main()
