@@ -1,11 +1,11 @@
 import os
 from ..midigen.midigen import MidiGen
-from unittest import TestCase, main
+import unittest
 
 from mido import bpm2tempo, Message
 
 
-class TestMidigen(TestCase):
+class TestMidigen(unittest.TestCase):
     def setUp(self):
         self.midi_gen = MidiGen()
 
@@ -117,5 +117,28 @@ class TestMidigen(TestCase):
         with self.assertRaises(ValueError):
             self.midi_gen.add_note(128, 64, 500)
 
+    def test_add_pitch_bend(self):
+        self.midi_gen.add_pitch_bend(channel=0, value=8191, time=0)
+        pitch_bend_msg = self.midi_gen.track[3]
+        self.assertEqual(pitch_bend_msg.type, "pitchwheel")
+        self.assertEqual(pitch_bend_msg.channel, 0)
+        self.assertEqual(pitch_bend_msg.pitch, 8191)
+        self.assertEqual(pitch_bend_msg.time, 0)
+
+
+def test_quantize_edge_cases(self):
+    # Test that the quantization value doesn't exceed the maximum MIDI ticks
+    time_value = 5000
+    quantization_value = 128
+    with self.assertRaises(ValueError):
+        self.midi_gen.quantize(time_value, quantization_value)
+
+    # Test for negative time_value and quantization_value
+    time_value = -50
+    quantization_value = -128
+    with self.assertRaises(ValueError):
+        self.midi_gen.quantize(time_value, quantization_value)
+
+
 if __name__ == '__main__':
-    main()
+    unittest.main()

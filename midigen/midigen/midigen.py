@@ -146,7 +146,7 @@ class MidiGen:
         :param time: Optional, the time to schedule the pitch bend. Default is 0.
         """
         self._track.append(
-            Message("pitch_bend", channel=channel, pitch=value, time=time)
+            Message("pitchwheel", channel=channel, pitch=value, time=time)
         )
 
     def add_chord(self, notes: List[int], velocity: int, duration: int, time: int = 0):
