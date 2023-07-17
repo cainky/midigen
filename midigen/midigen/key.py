@@ -24,6 +24,7 @@ VALID_KEYS = [
     for mode in ["major", "minor"]
 ]
 
+
 class Key:
     def __init__(self, name: str, mode: str = "major"):
         if (name, mode) not in VALID_KEYS:
@@ -34,13 +35,13 @@ class Key:
         self.name = name
         self.mode = mode
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}{'' if self.mode == 'major' else 'm'}"
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Key(name='{self.name}', mode='{self.mode}')"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Key):
             return self.name == other.name and self.mode == other.mode
         return False
