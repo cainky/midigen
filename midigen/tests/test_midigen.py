@@ -138,6 +138,63 @@ class TestMidigen(unittest.TestCase):
         quantization_value = -128
         with self.assertRaises(ValueError):
             self.midi_gen.quantize(time_value, quantization_value)
+        
+    def test_invalid_program_change(self):
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_program_change(channel=-1, program=0)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_program_change(channel=16, program=0)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_program_change(channel=0, program=-1)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_program_change(channel=0, program=128)
+
+    def test_invalid_control_change(self):
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_control_change(channel=-1, control=0, value=64)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_control_change(channel=16, control=0, value=64)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_control_change(channel=0, control=-1, value=64)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_control_change(channel=0, control=120, value=64)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_control_change(channel=0, control=0, value=-1)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_control_change(channel=0, control=0, value=128)
+
+    def test_invalid_pitch_bend(self):
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_pitch_bend(channel=-1, value=8192)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_pitch_bend(channel=16, value=8192)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_pitch_bend(channel=0, value=-8193)
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.add_pitch_bend(channel=0, value=8193)
+
+    def test_save_and_load_errors(self):
+        with self.assertRaises(ValueError):
+            self.midi_gen.save("")
+
+        with self.assertRaises(ValueError):
+            self.midi_gen.load_midi_file("")
+        
+        with self.assertRaises(FileNotFoundError):
+            self.midi_gen.load_midi_file("non_existent_file.mid")
+
+
 
 
 if __name__ == '__main__':

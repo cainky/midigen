@@ -144,10 +144,13 @@ class MidiGen:
         :param value: The value to set the control to.
         :param time: Optional, the time to schedule the control change. Default is 0.
         """
-        if not isinstance(channel, int) or channel < 0 or channel > 15:
+        if not isinstance(channel, int) or not 0 <= channel <= 15:
             raise ValueError("Invalid channel value: channel must be an integer between 0 and 15")
-        if not isinstance(control, int) or control < 0 or control > 127:
-            raise ValueError("Invalid control value: control must be an integer between 0 and 127")
+        if not isinstance(control, int) or not 0 <= control <= 119:
+            raise ValueError("Invalid control value: control must be an integer between 0 and 119")
+        if not isinstance(value, int) or not 0 <= value <= 127:
+            raise ValueError(f"Invalid value: {value}. Value must be between 0 and 127.")
+    
         self._track.append(
             Message(
                 "control_change",
@@ -238,6 +241,9 @@ class MidiGen:
 
         :param filename: The path to the MIDI file to load.
         """
+        if not filename:
+            raise ValueError("Filename cannot be empty.")
+
         if not os.path.isfile(filename):
             raise FileNotFoundError(f"No such file or directory: '{filename}'")
 
