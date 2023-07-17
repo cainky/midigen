@@ -1,8 +1,11 @@
 from typing import List, Tuple
-import mido
-from mido import Message, MidiFile, MidiTrack, MetaMessage
+import os
+from mido import Message, MidiFile, MidiTrack, MetaMessage, bpm2tempo
 from .key import Key
 from music21 import scale as m21_scale
+
+
+MAX_MIDI_TICKS = 32767  # Maximum value for a 15-bit signed integer
 
 
 class MidiGen:
@@ -45,6 +48,10 @@ class MidiGen:
         :param key_signature: The key signature, e.g. 'C'.
         :param mode: The mode, e.g. 'major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'.
         """
+        allowed_modes = ['major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian']
+        if mode not in allowed_modes:
+            raise ValueError(f"Invalid mode. Please use a valid mode from the list: {allowed_modes}")
+    
         self.mode = mode
         scale_degree = m21_scale.scale_degrees_to_key(key_signature, mode)
         self.set_key_signature(scale_degree)
@@ -55,10 +62,12 @@ class MidiGen:
 
         :param bpm: The tempo in BPM.
         """
-
+        if not isinstance(tempo, int) or tempo <= 0:
+            raise ValueError("Invalid tempo value: tempo must be a positive integer")
+   
         # Remove existing 'set_tempo' messages
         self._track = [msg for msg in self._track if msg.type != "set_tempo"]
-        self.tempo = mido.bpm2tempo(tempo)
+        self.tempo = bpm2tempo(tempo)
         self._track.append(MetaMessage("set_tempo", tempo=self.tempo))
 
     def set_time_signature(self, numerator: int, denominator: int):
@@ -104,6 +113,9 @@ class MidiGen:
         :param velocity: The velocity of the note. Default is 64.
         :param time: The time at which to add the note. Default is 0.
         """
+        if not isinstance(note, int) or note < 0 or note > 127:
+            raise ValueError("Invalid note value: note must be an integer between 0 and 127")
+    
         self._track.append(Message("note_on", note=note, velocity=velocity, time=time))
         self._track.append(
             Message("note_off", note=note, velocity=velocity, time=duration)
@@ -116,6 +128,11 @@ class MidiGen:
         :param channel: The MIDI channel for the program change.
         :param program: The program number to change to.
         """
+        if not isinstance(channel, int) or channel < 0 or channel > 15:
+            raise ValueError("Invalid channel value: channel must be an integer between 0 and 15")
+        if not isinstance(program, int) or program < 0 or program > 127:
+            raise ValueError("Invalid program value: program must be an integer between 0 and 127")
+        
         self._track.append(Message("program_change", channel=channel, program=program))
 
     def add_control_change(self, channel: int, control: int, value: int, time: int = 0):
@@ -127,6 +144,10 @@ class MidiGen:
         :param value: The value to set the control to.
         :param time: Optional, the time to schedule the control change. Default is 0.
         """
+        if not isinstance(channel, int) or channel < 0 or channel > 15:
+            raise ValueError("Invalid channel value: channel must be an integer between 0 and 15")
+        if not isinstance(control, int) or control < 0 or control > 127:
+            raise ValueError("Invalid control value: control must be an integer between 0 and 127")
         self._track.append(
             Message(
                 "control_change",
@@ -145,6 +166,13 @@ class MidiGen:
         :param value: The pitch bend value.
         :param time: Optional, the time to schedule the pitch bend. Default is 0.
         """
+        if not isinstance(channel, int) or channel < 0 or channel > 15:
+            raise ValueError("Invalid channel value: channel must be an integer between 0 and 15")
+        if not isinstance(value, int) or value < -8192 or value > 8191:
+            raise ValueError("Invalid value: value must be an integer between -8192 and 8191")
+        if not isinstance(time, int) or time < 0:
+            raise ValueError("Invalid time value: time must be a non-negative integer")
+
         self._track.append(
             Message("pitchwheel", channel=channel, pitch=value, time=time)
         )
@@ -158,6 +186,8 @@ class MidiGen:
         :param duration: The duration of the notes.
         :param time: Optional, the time to schedule the chord. Default is 0.
         """
+        if not all(isinstance(note, int) and 0 <= note <= 127 for note in notes):
+            raise ValueError("Invalid note value: all notes must be integers between 0 and 127")
         for note in notes:
             self.add_note(note, velocity, duration, time)
             time = 0
@@ -179,6 +209,8 @@ class MidiGen:
         :param arp_duration: The time between the start of each note in the arpeggio.
         :param time: Optional, the time to schedule the arpeggio. Default is 0.
         """
+        if not all(isinstance(note, int) and 0 <= note <= 127 for note in notes):
+            raise ValueError("Invalid note value: all notes must be integers between 0 and 127")
         for note in notes:
             self.add_note(note, velocity, duration, time)
             time = arp_duration
@@ -191,6 +223,13 @@ class MidiGen:
         :param quantization_value: The quantization step size.
         :return: The quantized time value.
         """
+
+        if quantization_value < 0 or time_value < 0:
+            raise ValueError("Time value and quantization value must be non-negative.")
+
+        if quantization_value > MAX_MIDI_TICKS:
+            raise ValueError(f"Quantization value must not exceed maximum MIDI ticks: {MAX_MIDI_TICKS}")
+        
         return round(time_value / quantization_value) * quantization_value
 
     def load_midi_file(self, filename: str):
@@ -199,6 +238,9 @@ class MidiGen:
 
         :param filename: The path to the MIDI file to load.
         """
+        if not os.path.isfile(filename):
+            raise FileNotFoundError(f"No such file or directory: '{filename}'")
+
         self._midi_file = MidiFile(filename)
         self._track = self._midi_file.tracks[0]
         return self._midi_file
@@ -227,4 +269,11 @@ class MidiGen:
 
         :param filename: The path where the MIDI file should be saved.
         """
-        self._midi_file.save(filename)
+        try:
+            self._midi_file.save(filename)
+        except FileNotFoundError:
+            raise ValueError(f"Cannot save file: Invalid filename or directory: '{filename}'")
+        except PermissionError:
+            raise ValueError(f"Cannot save file: Permission denied for directory: '{filename}'")
+        except Exception as e:
+            raise ValueError(f"Cannot save file: Unknown error: {str(e)}")

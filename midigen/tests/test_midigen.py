@@ -1,5 +1,5 @@
 import os
-from ..midigen.midigen import MidiGen
+from ..midigen.midigen import MidiGen, MAX_MIDI_TICKS
 import unittest
 
 from mido import bpm2tempo, Message
@@ -126,18 +126,18 @@ class TestMidigen(unittest.TestCase):
         self.assertEqual(pitch_bend_msg.time, 0)
 
 
-def test_quantize_edge_cases(self):
-    # Test that the quantization value doesn't exceed the maximum MIDI ticks
-    time_value = 5000
-    quantization_value = 128
-    with self.assertRaises(ValueError):
-        self.midi_gen.quantize(time_value, quantization_value)
+    def test_quantize_edge_cases(self):
+        # Test that the quantization value doesn't exceed the maximum MIDI ticks
+        time_value = 5000
+        quantization_value = MAX_MIDI_TICKS + 1
+        with self.assertRaises(ValueError):
+            self.midi_gen.quantize(time_value, quantization_value)
 
-    # Test for negative time_value and quantization_value
-    time_value = -50
-    quantization_value = -128
-    with self.assertRaises(ValueError):
-        self.midi_gen.quantize(time_value, quantization_value)
+        # Test for negative time_value and quantization_value
+        time_value = -50
+        quantization_value = -128
+        with self.assertRaises(ValueError):
+            self.midi_gen.quantize(time_value, quantization_value)
 
 
 if __name__ == '__main__':
