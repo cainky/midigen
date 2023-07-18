@@ -1,6 +1,7 @@
 class Scale:
-    MAJOR_INTERVALS = [2, 2, 1, 2, 2, 2, 1]
-    MINOR_INTERVALS = [2, 1, 2, 2, 1, 2, 2]
+    # Interval steps
+    MAJOR_INTERVALS = [2, 2, 1, 2, 2, 2, 1] # W W H W W W H
+    MINOR_INTERVALS = [2, 1, 2, 2, 1, 2, 2] # W H W W H W W
 
     @staticmethod
     def major(root):

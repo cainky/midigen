@@ -1,8 +1,12 @@
 from typing import List, Tuple
-import os
+import os, time
 from mido import Message, MidiFile, MidiTrack, MetaMessage, bpm2tempo
 from .key import Key, VALID_KEYS
 from music21 import scale as m21_scale
+from midigen.chord import Chord, ChordProgression, Arpeggio
+from midigen.scale import Scale
+from midigen.note import Note
+
 
 MAX_MIDI_TICKS = 32767  # Maximum value for a 15-bit signed integer
 
@@ -35,7 +39,7 @@ class MidiGen:
         Return a string representation of the MidiGen object.
         :return: A string with the track, tempo, time signature, and key signature of the MidiGen object.
         """
-        return str(
+        return (
             f"Track: {self._track}\nTempo: {self.tempo}\n \
             Time Signature: {self.time_signature}\nKey Signature: {self.key_signature}"
         )
@@ -53,7 +57,8 @@ class MidiGen:
     
         self.mode = mode
         scale_degree = m21_scale.scale_degrees_to_key(key_signature, mode)
-        self.set_key_signature(scale_degree)
+        key = Key(scale_degree, mode)
+        self.set_key_signature(key)
 
     def set_tempo(self, tempo: int) -> None:
         """
@@ -115,33 +120,6 @@ class MidiGen:
         self.key_signature = key
         self._track.append(MetaMessage("key_signature", key=str(key)))
 
-    def add_note(self, note: int, velocity: int, duration: int, time: int = 0) -> None:
-        """
-        Add a note to the MIDI track.
-
-        This method adds a note to the MIDI track with the specified velocity and duration, starting at the specified time.
-
-        Args:
-            note (int): The pitch of the note. Must be between 0 and 127 inclusive.
-            velocity (int): The velocity of the note. Must be between 0 and 127 inclusive.
-            duration (int): The duration of the note in ticks.
-            time (int): The time to start playing the note, in ticks from the previous message. Default is 0.
-
-        Raises:
-            ValueError: If note, velocity, duration or time is not an integer or outside valid range.
-
-        Example:
-            midi_gen = MidiGen()
-            midi_gen.add_note(60, 64, 500, 100)
-        """
-        if not isinstance(note, int) or note < 0 or note > 127:
-            raise ValueError("Invalid note value: note must be an integer between 0 and 127")
-    
-        self._track.append(Message("note_on", note=note, velocity=velocity, time=time))
-        self._track.append(
-            Message("note_off", note=note, velocity=velocity, time=duration)
-        )
-
     def add_program_change(self, channel: int, program: int) -> None:
         """
         Add a program change to the MIDI file.
@@ -155,10 +133,10 @@ class MidiGen:
         """
 
         if not isinstance(channel, int) or not 0 <= channel <= 15:
-            raise ValueError("Invalid channel value: channel must be an integer between 0 and 15")
+            raise ValueError(f"Invalid channel value: {channel}. Channel must be an integer between 0 and 15")
         if not isinstance(program, int) or program < 0 or program > 127:
-            raise ValueError("Invalid program value: program must be an integer between 0 and 127")
-        
+            raise ValueError(f"Invalid program value: {program}. Program must be an integer between 0 and 127")
+
         self._track.append(Message("program_change", channel=channel, program=program))
 
     def add_control_change(self, channel: int, control: int, value: int, time: int = 0) -> None:
@@ -175,9 +153,9 @@ class MidiGen:
             ValueError: If channel, control, or value are outside of their respective valid ranges.
         """
         if not isinstance(channel, int) or not 0 <= channel <= 15:
-            raise ValueError("Invalid channel value: channel must be an integer between 0 and 15")
+            raise ValueError(f"Invalid channel value: {channel}. Channel must be an integer between 0 and 15")
         if not isinstance(control, int) or not 0 <= control <= 119:
-            raise ValueError("Invalid control value: control must be an integer between 0 and 119")
+            raise ValueError(f"Invalid control value: {control}. Control must be an integer between 0 and 119")
         if not isinstance(value, int) or not 0 <= value <= 127:
             raise ValueError(f"Invalid value: {value}. Value must be between 0 and 127.")
     
@@ -210,44 +188,53 @@ class MidiGen:
         self._track.append(
             Message("pitchwheel", channel=channel, pitch=value, time=time)
         )
+    
+    def add_note(self, note: Note) -> None:
+        """
+        Add a note to the MIDI track.
 
-    def add_chord(self, notes: List[int], velocity: int, duration: int, time: int = 0) -> None:
+        This method adds a note to the MIDI track with the specified velocity and duration, starting at the specified time.
+
+        Raises:
+            ValueError: If note, velocity, duration or time is not an integer or outside valid range.
+        """
+        self._track.append(Message("note_on", note=note.pitch, velocity=note.velocity, time=note.time))
+        self._track.append(
+            Message("note_off", note=note.pitch, velocity=note.velocity, time=note.duration)
+        )
+
+    def add_chord(self, chord: Chord) -> None:
         """
         Add a chord (simultaneous notes) to the track.
 
-        :param notes: A list of note values for the chord.
+        :param chord: A Chord object.
         :param velocity: The velocity of the notes.
         :param duration: The duration of the notes.
-        :param time: Optional, the time to schedule the chord. Default is 0.
+        :param time: Optional, the time to schedule the chord.
         """
-        if not all(isinstance(note, int) and 0 <= note <= 127 for note in notes):
-            raise ValueError("Invalid note value: all notes must be integers between 0 and 127")
-        for note in notes:
-            self.add_note(note, velocity, duration, time)
-            time = 0
+        for note in chord.get_notes():
+            self.add_note(note)
+
+    def add_chord_progression(self, chord_progression: ChordProgression):
+        """
+        Add a chord progression to the MIDI file.
+
+        :param chord_progression: A ChordProgression object.
+        :param time: The time at which to start the chord progression.
+        """
+        for chord in chord_progression.get_progression():
+            self.add_chord(chord)
+
 
     def add_arpeggio(
         self,
-        notes: List[int],
-        velocity: int,
-        duration: int,
-        arp_duration: int,
-        time: int = 0,
+        arpeggio: Arpeggio,
     ) -> None:
         """
         Add an arpeggio (sequence of notes) to the track.
-
-        :param notes: A list of note values for the arpeggio.
-        :param velocity: The velocity of the notes.
-        :param duration: The duration of each individual note.
-        :param arp_duration: The time between the start of each note in the arpeggio.
-        :param time: Optional, the time to schedule the arpeggio. Default is 0.
         """
-        if not all(isinstance(note, int) and 0 <= note <= 127 for note in notes):
-            raise ValueError("Invalid note value: all notes must be integers between 0 and 127")
-        for note in notes:
-            self.add_note(note, velocity, duration, time)
-            time = arp_duration
+        for note in arpeggio.get_sequential_notes():
+            self.add_note(note)
 
     def quantize(self, time_value: int, quantization_value: int) -> int:
         """
@@ -274,10 +261,9 @@ class MidiGen:
         """
         if not filename:
             raise ValueError("Filename cannot be empty.")
-
         if not os.path.isfile(filename):
             raise FileNotFoundError(f"No such file or directory: '{filename}'")
-
+        
         self._midi_file = MidiFile(filename)
         self._track = self._midi_file.tracks[0]
         return self._midi_file
@@ -306,6 +292,10 @@ class MidiGen:
 
         :param filename: The path where the MIDI file should be saved.
         """
+        if os.path.exists(filename):
+            # Generate a unique filename by appending the current Unix time
+            base, ext = os.path.splitext(filename)
+            filename = f"{base}_{int(time.time())}{ext}"
         try:
             self._midi_file.save(filename)
         except FileNotFoundError:

@@ -24,6 +24,26 @@ VALID_KEYS = [
     for mode in ["major", "minor"]
 ]
 
+KEY_MAP = {
+    "C": 60,
+    "C#": 61,
+    "Db": 61,
+    "D": 62,
+    "D#": 63,
+    "Eb": 63,
+    "E": 64,
+    "F": 65,
+    "F#": 66,
+    "Gb": 66,
+    "G": 67,
+    "G#": 68,
+    "Ab": 68,
+    "A": 69,
+    "A#": 70,
+    "Bb": 70,
+    "B": 71
+}
+
 
 class Key:
     def __init__(self, name: str, mode: str = "major"):

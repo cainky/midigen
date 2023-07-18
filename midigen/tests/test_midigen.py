@@ -1,5 +1,9 @@
 import os
-from ..midigen.midigen import MidiGen, MAX_MIDI_TICKS
+from midigen.midigen import MidiGen, MAX_MIDI_TICKS
+from midigen.note import Note
+from midigen.scale import Scale
+from midigen.key import Key, KEY_MAP
+from midigen.chord import Chord, ChordProgression, Arpeggio, ArpeggioPattern
 import unittest
 
 from mido import bpm2tempo, Message
@@ -46,7 +50,8 @@ class TestMidigen(unittest.TestCase):
         self.assertEqual(program_change_msg.program, 0)
 
     def test_add_note(self):
-        self.midi_gen.add_note(60, 64, 500)
+        new_note = Note(60, 64, 500, 0)
+        self.midi_gen.add_note(new_note)
         note_on_msg = self.midi_gen.track[3]
         note_off_msg = self.midi_gen.track[4]
         self.assertEqual(note_on_msg.type, "note_on")
@@ -56,13 +61,16 @@ class TestMidigen(unittest.TestCase):
         self.assertEqual(len(self.midi_gen.track), 5)
 
     def test_add_chord(self):
-        self.midi_gen.add_chord([60, 64, 67], 64, 500)
+        new_note = Note(60, 64, 67, 64)
+        chord = Chord(new_note)
+        self.midi_gen.add_chord(chord)
         messages = self.midi_gen.track[3:9]
         self.assertTrue(all(msg.type == "note_on" for msg in messages[::2]))
         self.assertTrue(all(msg.type == "note_off" for msg in messages[1::2]))
 
+
     def test_add_arpeggio(self):
-        self.midi_gen.add_arpeggio([60, 64, 67], 64, 500, 125)
+        self.midi_gen.add_arpeggio([60, 64, 67])
         messages = self.midi_gen.track[3:9]
         self.assertTrue(all(msg.type == "note_on" for msg in messages[::2]))
         self.assertTrue(all(msg.type == "note_off" for msg in messages[1::2]))
@@ -112,10 +120,10 @@ class TestMidigen(unittest.TestCase):
 
     def test_invalid_note_value(self):
         with self.assertRaises(ValueError):
-            self.midi_gen.add_note(-1, 64, 500)
+            Note(-1, 64, 500)
 
         with self.assertRaises(ValueError):
-            self.midi_gen.add_note(128, 64, 500)
+            Note(128, 64, 500)
 
     def test_add_pitch_bend(self):
         self.midi_gen.add_pitch_bend(channel=0, value=8191, time=0)
