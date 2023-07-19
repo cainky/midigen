@@ -91,8 +91,6 @@ class TestMidigen(unittest.TestCase):
         self.assertEqual(str(messages[4]), self.create_note_on_message(notes[1], notes[1].time))
         self.assertEqual(str(messages[5]), self.create_note_off_message(notes[1], notes[1].duration))
 
-
-
     def test_quantize(self):
         time_value = 123
         quantization_value = 128
