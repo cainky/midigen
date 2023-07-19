@@ -60,10 +60,10 @@ class Chord:
         return self.minor_triad() + [self.root + 10]
 
     def half_diminished_seventh(self) -> List[Note]:
-        return self.minor_triad() + [self.root + 9]
+        return [self.root, self.root + 3, self.root + 6, self.root + 10]
 
     def diminished_seventh(self) -> List[Note]:
-        return self.minor_triad()[:-1] + [self.root + 9] + [self.root + 12]
+        return [self.root, self.root + 3, self.root + 6, self.root + 9]
 
     def minor_ninth(self) -> List[Note]:
         return self.minor_seventh() + [self.root + 14]
