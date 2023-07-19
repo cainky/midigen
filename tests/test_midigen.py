@@ -13,6 +13,12 @@ class TestMidigen(unittest.TestCase):
     def setUp(self):
         self.midi_gen = MidiGen()
 
+    def create_note_on_message(self, note, time):
+        return f'note_on channel=0 note={note.pitch} velocity={note.velocity} time={time}'
+
+    def create_note_off_message(self, note, time):
+        return f'note_off channel=0 note={note.pitch} velocity={note.velocity} time={time}'
+
     def test_midi_gen_creation(self):
         self.assertIsNotNone(self.midi_gen)
 
@@ -50,7 +56,7 @@ class TestMidigen(unittest.TestCase):
         self.assertEqual(program_change_msg.program, 0)
 
     def test_add_note(self):
-        new_note = Note(60, 64, 500, 0)
+        new_note = Note(60, 64, 127, 0)
         self.midi_gen.add_note(new_note)
         note_on_msg = self.midi_gen.track[3]
         note_off_msg = self.midi_gen.track[4]
@@ -70,10 +76,22 @@ class TestMidigen(unittest.TestCase):
 
 
     def test_add_arpeggio(self):
-        self.midi_gen.add_arpeggio([60, 64, 67])
-        messages = self.midi_gen.track[3:9]
+        root_note = Note(60, 64, 100, 0)
+        notes = [Note(62, 64, 100, 100), Note(64, 64, 100, 200)]
+        arpeggio = Arpeggio(root_note, notes)
+        self.midi_gen.add_arpeggio(arpeggio)
+        messages = self.midi_gen.track[3:]
+        self.assertEqual(len(messages), 6)  # 3 note_on and 3 note_off messages
         self.assertTrue(all(msg.type == "note_on" for msg in messages[::2]))
         self.assertTrue(all(msg.type == "note_off" for msg in messages[1::2]))
+        self.assertEqual(str(messages[0]), self.create_note_on_message(root_note, root_note.time))
+        self.assertEqual(str(messages[1]), self.create_note_off_message(root_note, root_note.duration))
+        self.assertEqual(str(messages[2]), self.create_note_on_message(notes[0], notes[0].time))
+        self.assertEqual(str(messages[3]), self.create_note_off_message(notes[0], notes[0].duration))
+        self.assertEqual(str(messages[4]), self.create_note_on_message(notes[1], notes[1].time))
+        self.assertEqual(str(messages[5]), self.create_note_off_message(notes[1], notes[1].duration))
+
+
 
     def test_quantize(self):
         time_value = 123
@@ -120,10 +138,10 @@ class TestMidigen(unittest.TestCase):
 
     def test_invalid_note_value(self):
         with self.assertRaises(ValueError):
-            Note(-1, 64, 500)
+            Note(-1, 64, 500, 0)
 
         with self.assertRaises(ValueError):
-            Note(128, 64, 500)
+            Note(128, 64, 500, 0)
 
     def test_add_pitch_bend(self):
         self.midi_gen.add_pitch_bend(channel=0, value=8191, time=0)
