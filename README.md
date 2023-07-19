@@ -13,7 +13,7 @@ midi_gen = MidiGen(tempo=120, time_signature=(4, 4), key_signature=0)
 midi_gen.add_program_change(channel=0, program=0)
 
 # Add notes
-midi_gen.add_note(60, 64, 500)
+midi_gen.add_Note(KEY_MAP["C"], 64, 500)
 midi_gen.add_note(62, 64, 500)
 
 # Add a chord

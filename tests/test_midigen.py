@@ -56,7 +56,7 @@ class TestMidigen(unittest.TestCase):
         self.assertEqual(program_change_msg.program, 0)
 
     def test_add_note(self):
-        new_note = Note(60, 64, 127, 0)
+        new_note = Note(KEY_MAP["C"], 64, 127, 0)
         self.midi_gen.add_note(new_note)
         note_on_msg = self.midi_gen.track[3]
         note_off_msg = self.midi_gen.track[4]
@@ -67,7 +67,7 @@ class TestMidigen(unittest.TestCase):
         self.assertEqual(len(self.midi_gen.track), 5)
 
     def test_add_chord(self):
-        new_note = Note(60, 64, 67, 64)
+        new_note = Note(KEY_MAP["C"], 64, 67, 64)
         chord = Chord(new_note)
         self.midi_gen.add_chord(chord)
         messages = self.midi_gen.track[3:9]
@@ -76,7 +76,7 @@ class TestMidigen(unittest.TestCase):
 
 
     def test_add_arpeggio(self):
-        root_note = Note(60, 64, 100, 0)
+        root_note = Note(KEY_MAP["C"], 64, 100, 0)
         notes = [Note(62, 64, 100, 100), Note(64, 64, 100, 200)]
         arpeggio = Arpeggio(root_note, notes)
         self.midi_gen.add_arpeggio(arpeggio)

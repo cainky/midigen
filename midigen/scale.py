@@ -13,6 +13,8 @@ class Scale:
 
     @staticmethod
     def _generate_scale(root, intervals):
+        if not isinstance(root, int) or root < 0 or root > 127:
+            raise ValueError("Root must be an integer between 0 and 127 inclusive")
         scale = [root]
         for interval in intervals:
             scale.append(scale[-1] + interval)
