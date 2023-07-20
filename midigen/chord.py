@@ -89,7 +89,7 @@ class ChordProgression:
         return self.duration
     
     def _calculate_start_time(self) -> int:
-        self.time = min(chord.get_start_time() for chord in self.chords)
+        self.time = min(chord._calculate_start_time() for chord in self.chords)
         return self.time
 
     def __str__(self) -> str:
@@ -97,24 +97,6 @@ class ChordProgression:
     
     def __eq__(self, other) -> bool:
         return self.chords == other.chords
-
-    def get_major_triad(self, root) -> List[Note]:
-        root_note = KEY_MAP[root]
-        return Chord(root_note).major_triad()
-
-    def get_minor_triad(self, root) -> List[Note]:
-        root_note = KEY_MAP[root]
-        return Chord(root_note).minor_triad()
-
-    def get_progression(self) -> List[Chord]:
-        progression = []
-        for chord in self.chords:
-            if chord.isupper():
-                progression.append(self.get_major_triad(chord))
-            else:
-                chord = chord.upper()
-                progression.append(self.get_minor_triad(chord))
-        return progression
 
     def add_chord(self, chord: Chord) -> None:
         """

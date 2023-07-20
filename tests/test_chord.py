@@ -1,6 +1,6 @@
 from midigen.note import Note
 from midigen.key import KEY_MAP
-from midigen.chord import Chord, Arpeggio, ArpeggioPattern
+from midigen.chord import Chord, ChordProgression, Arpeggio, ArpeggioPattern
 import unittest
 
 class TestChord(unittest.TestCase):
@@ -60,9 +60,6 @@ class TestChord(unittest.TestCase):
                         Note(KEY_MAP["G"], 64, 100, 0), Note(KEY_MAP["Bb"], 64, 100, 0), 
                         Note(KEY_MAP["D"] + 12, 64, 100, 0)]  # And here
         self.assertEqual(dominant_ninth, expected_notes)
-
-
-
     
     def test_major_ninth_chord(self):
         major_ninth = self.chord.major_ninth()
@@ -71,6 +68,30 @@ class TestChord(unittest.TestCase):
                                 Note(KEY_MAP["D"], 64, 100, 0) + 12]  # Increase the octave for the ninth note
         for note_actual, note_expected in zip(major_ninth, expected_major_ninth):
             self.assertEqual(note_actual, note_expected)
+
+
+class TestChordProgression(unittest.TestCase):
+    def setUp(self):
+        self.root_note1 = Note(KEY_MAP["C"], 64, 100, 0)
+        self.root_note2 = Note(KEY_MAP["D"], 64, 100, 0)
+        self.chord1 = Chord(self.root_note1)
+        self.chord2 = Chord(self.root_note2)
+        self.progression = ChordProgression([self.chord1, self.chord2])
+
+    def test_add_chord(self):
+        new_chord = Chord(Note(KEY_MAP["E"], 64, 100, 0))
+        self.progression.add_chord(new_chord)
+        self.assertEqual(self.progression.chords[-1], new_chord)
+
+    def test_duration_calculation(self):
+        duration = self.progression._calculate_duration()
+        expected_duration = self.chord1._calculate_duration() + self.chord2._calculate_duration()
+        self.assertEqual(duration, expected_duration)
+
+    def test_start_time_calculation(self):
+        start_time = self.progression._calculate_start_time()
+        expected_start_time = min(self.chord1._calculate_start_time(), self.chord2._calculate_start_time())
+        self.assertEqual(start_time, expected_start_time)
 
 
 class TestArpeggio(unittest.TestCase):
@@ -86,15 +107,21 @@ class TestArpeggio(unittest.TestCase):
         sequential_notes = self.arpeggio.get_sequential_notes()
         self.assertEqual(sequential_notes, [Note(KEY_MAP["C"], 64, 100, 0), Note(KEY_MAP["D"], 64, 100, 100), Note(KEY_MAP["E"], 64, 100, 200)])
 
-    # def test_get_sequential_notes_descending(self):
-    #     arpeggio = Arpeggio(self.root_note, self.notes, delay=100, pattern=ArpeggioPattern.DESCENDING, loops=1)
-    #     sequential_notes = arpeggio.get_sequential_notes()
-    #     self.assertEqual(sequential_notes, [Note(KEY_MAP["C"], 64, 100, 0), Note(KEY_MAP["E"], 64, 100, 200), Note(KEY_MAP["D"], 64, 100, 100)])
+    def test_get_sequential_notes_ascending(self):
+        arpeggio = Arpeggio(self.root_note, self.notes, delay=100, pattern=ArpeggioPattern.ASCENDING, loops=1)
+        sequential_notes = arpeggio.get_sequential_notes()
+        expected_notes = [Note(KEY_MAP["C"], 64, 100, 0), Note(KEY_MAP["D"], 64, 100, 100), Note(KEY_MAP["E"], 64, 100, 200)]
+        self.assertEqual(sequential_notes, expected_notes)
 
-    # def test_get_sequential_notes_alternating(self):
-    #     arpeggio = Arpeggio(self.root_note, self.notes, delay=100, pattern=ArpeggioPattern.ALTERNATING, loops=2)
-    #     sequential_notes = arpeggio.get_sequential_notes()
-    #     self.assertEqual(sequential_notes, [Note(KEY_MAP["C"], 64, 100, 0), Note(KEY_MAP["D"], 64, 100, 100), 
-    #                                         Note(KEY_MAP["E"], 64, 100, 200), Note(KEY_MAP["D"], 64, 100, 100), 
-    #                                         Note(KEY_MAP["C"], 64, 100, 0), Note(KEY_MAP["D"], 64, 100, 100), 
-    #                                         Note(KEY_MAP["E"], 64, 100, 200)])
+    def test_get_sequential_notes_descending(self):
+        arpeggio = Arpeggio(self.root_note, self.notes, delay=100, pattern=ArpeggioPattern.DESCENDING, loops=1)
+        sequential_notes = arpeggio.get_sequential_notes()
+        expected_notes = [Note(KEY_MAP["E"], 64, 100, 200), Note(KEY_MAP["D"], 64, 100, 100), Note(KEY_MAP["C"], 64, 100, 0)]
+        self.assertEqual(sequential_notes, expected_notes)
+
+    def test_get_sequential_notes_alternating(self):
+        arpeggio = Arpeggio(self.root_note, self.notes, delay=100, pattern=ArpeggioPattern.ALTERNATING, loops=2)
+        sequential_notes = arpeggio.get_sequential_notes()
+        expected_notes = [Note(KEY_MAP["C"], 64, 100, 0), Note(KEY_MAP["D"], 64, 100, 100), Note(KEY_MAP["E"], 64, 100, 200),
+                        Note(KEY_MAP["E"], 64, 100, 200), Note(KEY_MAP["D"], 64, 100, 100), Note(KEY_MAP["C"], 64, 100, 0)]
+        self.assertEqual(sequential_notes, expected_notes)
