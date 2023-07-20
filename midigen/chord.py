@@ -84,6 +84,9 @@ class ChordProgression:
     def __str__(self) -> str:
         return f"[{', '.join(str(chord) for chord in self.chords)}]"
     
+    def get_progression(self) -> List[Chord]:
+        return self.chords
+
     def _calculate_duration(self) -> int:
         self.duration = sum(chord._calculate_duration() for chord in self.chords)
         return self.duration

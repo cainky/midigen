@@ -25,8 +25,5 @@ class TestNote(unittest.TestCase):
         with self.assertRaises(ValueError):
             Note(128, 64, 100, 0)
 
-
-
-
 if __name__ == "__main__":
     unittest.main()

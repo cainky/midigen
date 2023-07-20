@@ -1,8 +1,8 @@
 from typing import List, Tuple
 import os, time
-from mido import Message, MidiFile, MidiTrack, MetaMessage, bpm2tempo
-from .key import Key, VALID_KEYS
 from music21 import scale as m21_scale
+from mido import Message, MidiFile, MidiTrack, MetaMessage, bpm2tempo
+from midigen.key import Key, VALID_KEYS
 from midigen.chord import Chord, ChordProgression, Arpeggio
 from midigen.scale import Scale
 from midigen.note import Note
