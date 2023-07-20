@@ -20,10 +20,9 @@ class Note:
     def __str__(self) -> str:
         return f"Note: {self.pitch}, {self.velocity}, {self.duration}"
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, Note):
-            return (self.pitch == other.pitch and self.velocity == other.velocity and
-                    self.time == other.time and self.duration == other.duration)
+            return self.pitch == other.pitch and self.velocity == other.velocity and self.duration == other.duration and self.time == other.time
         return False
     
     def __add__(self, other):

@@ -11,7 +11,7 @@ class Chord:
         self._calculate_duration()
             
     def __str__(self) -> str:
-        return f"Chord: {self.notes}"
+        return f"[{', '.join(str(note) for note in self.notes)}]"
 
     def _calculate_start_time(self) -> int:
         """
@@ -82,7 +82,7 @@ class ChordProgression:
         self._calculate_duration()
 
     def __str__(self) -> str:
-        return f"ChordProgression: {self.chords}"
+        return f"[{', '.join(str(chord) for chord in self.chords)}]"
     
     def _calculate_duration(self) -> int:
         self.duration = sum(chord._calculate_duration() for chord in self.chords)
@@ -91,9 +91,6 @@ class ChordProgression:
     def _calculate_start_time(self) -> int:
         self.time = min(chord._calculate_start_time() for chord in self.chords)
         return self.time
-
-    def __str__(self) -> str:
-        return f"{self.chords}"
     
     def __eq__(self, other) -> bool:
         return self.chords == other.chords

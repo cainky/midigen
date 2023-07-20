@@ -84,15 +84,22 @@ class TestChordProgression(unittest.TestCase):
         self.assertEqual(self.progression.chords[-1], new_chord)
 
     def test_duration_calculation(self):
-        duration = self.progression._calculate_duration()
         expected_duration = self.chord1._calculate_duration() + self.chord2._calculate_duration()
-        self.assertEqual(duration, expected_duration)
+        self.assertEqual(self.progression.duration, expected_duration)
 
     def test_start_time_calculation(self):
-        start_time = self.progression._calculate_start_time()
         expected_start_time = min(self.chord1._calculate_start_time(), self.chord2._calculate_start_time())
-        self.assertEqual(start_time, expected_start_time)
+        self.assertEqual(self.progression.time, expected_start_time)
+        
+    def test_str_representation(self):
+        self.assertEqual(str(self.progression), f"[{str(self.chord1)}, {str(self.chord2)}]")
 
+    def test_equality(self):
+        other_progression = ChordProgression([self.chord1, self.chord2])
+        self.assertEqual(self.progression, other_progression)
+        new_chord = Chord(Note(KEY_MAP["E"], 64, 100, 0))
+        other_progression.add_chord(new_chord)
+        self.assertNotEqual(self.progression, other_progression)
 
 class TestArpeggio(unittest.TestCase):
     def setUp(self):
