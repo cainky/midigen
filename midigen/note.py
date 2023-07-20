@@ -1,3 +1,7 @@
+NOTE_ON = "note_on"
+NOTE_OFF = "note_off"
+
+
 class Note:
     def __init__(self, pitch: int, velocity: int, duration: int, time: int):
         """
