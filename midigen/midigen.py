@@ -219,7 +219,7 @@ class MidiGen:
         :param duration: The duration of the notes.
         :param time: Optional, the time to schedule the chord.
         """
-        for note in chord.get_notes():
+        for note in chord.get_chord():
             self.add_note(note)
 
     def add_chord_progression(self, chord_progression: ChordProgression):

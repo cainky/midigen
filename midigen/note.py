@@ -15,6 +15,9 @@ class Note:
         self.duration = duration
         self.time = time
         self._validate_note()
+    
+    def get_note(self) -> "Note":
+        return self
         
     def _validate_note(self) -> bool:
         validate_attributes = ["pitch", "velocity"]
@@ -22,8 +25,11 @@ class Note:
             if not 0 <= value <= 127 and not isinstance(attribute, int) and attribute in validate_attributes:
                raise ValueError(f"Invalid {attribute}, must be an integer between 0 and 127.")
 
-    def __str__(self) -> str:
-        return f"Note: {self.pitch}, {self.velocity}, {self.duration}"
+    def __str__(self):
+        return f"Note(pitch={self.pitch}, velocity={self.velocity}, duration={self.duration}, time={self.time})"
+    
+    def __repr__(self):
+            return f"Note(pitch={self.pitch}, velocity={self.velocity}, duration={self.duration}, time={self.time})"
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Note):

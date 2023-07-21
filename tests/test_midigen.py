@@ -68,28 +68,24 @@ class TestMidigen(unittest.TestCase):
 
     def test_add_chord(self):
         new_note = Note(KEY_MAP["C"], 64, 67, 64)
-        chord = Chord(new_note)
+        chord = Chord([new_note])
         self.midi_gen.add_chord(chord)
         messages = self.midi_gen.track[3:9]
         self.assertTrue(all(msg.type == "note_on" for msg in messages[::2]))
         self.assertTrue(all(msg.type == "note_off" for msg in messages[1::2]))
 
-
     def test_add_arpeggio(self):
-        root_note = Note(KEY_MAP["C"], 64, 100, 0)
         notes = [Note(62, 64, 100, 100), Note(64, 64, 100, 200)]
-        arpeggio = Arpeggio(root_note, notes)
+        arpeggio = Arpeggio(notes)
         self.midi_gen.add_arpeggio(arpeggio)
         messages = self.midi_gen.track[3:]
-        self.assertEqual(len(messages), 6)  # 3 note_on and 3 note_off messages
+        self.assertEqual(len(messages), 4)  # 2 note_on and 2 note_off messages
         self.assertTrue(all(msg.type == "note_on" for msg in messages[::2]))
         self.assertTrue(all(msg.type == "note_off" for msg in messages[1::2]))
-        self.assertEqual(str(messages[0]), self.create_note_on_message(root_note, root_note.time))
-        self.assertEqual(str(messages[1]), self.create_note_off_message(root_note, root_note.duration))
-        self.assertEqual(str(messages[2]), self.create_note_on_message(notes[0], notes[0].time))
-        self.assertEqual(str(messages[3]), self.create_note_off_message(notes[0], notes[0].duration))
-        self.assertEqual(str(messages[4]), self.create_note_on_message(notes[1], notes[1].time))
-        self.assertEqual(str(messages[5]), self.create_note_off_message(notes[1], notes[1].duration))
+        for i in range(0, len(messages), 2):
+            note_on_msg = messages[i]
+            note_off_msg = messages[i+1]
+            self.assertEqual(note_off_msg.time - note_on_msg.time, notes[i//2].duration)
 
     def test_quantize(self):
         time_value = 123
