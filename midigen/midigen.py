@@ -204,12 +204,6 @@ class MidiGen:
         )
 
     def add_rest(self, duration: int, track: int = 0) -> None:
-        """
-        Add a rest of specified duration to the specified track.
-
-        :param duration: The duration of the rest.
-        :param track: The track number to add the rest to.
-        """
         last_event = self._tracks[track][-1] if self._tracks[track] else None
         if last_event and last_event.type == "note_off":
             last_event.time += duration
@@ -256,48 +250,7 @@ class MidiGen:
         """
         for drum in drum_kit.get_drums():
             self.add_note(drum)
-    
-    def crescendo(self, start_velocity: int, end_velocity: int, duration: int, track: int = 0) -> None:
-        """
-        Apply a crescendo to the specified track.
-
-        :param start_velocity: The starting velocity.
-        :param end_velocity: The ending velocity.
-        :param duration: The duration of the crescendo.
-        :param track: The track number to apply the crescendo to.
-        """
-        step = (end_velocity - start_velocity) / duration
-        velocity = start_velocity
-        for i in range(duration):
-            self._tracks[track].append(Message("note_on", note=60, velocity=int(velocity), time=1))
-            self._tracks[track].append(Message("note_off", note=60, velocity=int(velocity), time=1))
-            velocity += step
-
-    def decrescendo(self, start_velocity: int, end_velocity: int, duration: int, track: int = 0) -> None:
-        """
-        Apply a decrescendo to the specified track.
-
-        :param start_velocity: The starting velocity.
-        :param end_velocity: The ending velocity.
-        :param duration: The duration of the decrescendo.
-        :param track: The track number to apply the decrescendo to.
-        """
-        self.crescendo(end_velocity, start_velocity, duration, track)
-
-    def repeat(self, start_time: int, end_time: int, repetitions: int, track: int = 0) -> None:
-        """
-        Repeat a section of the specified track.
-
-        :param start_time: The start time of the section to repeat.
-        :param end_time: The end time of the section to repeat.
-        :param repetitions: The number of times to repeat the section.
-        :param track: The track number to repeat the section on.
-        """
-        segment = [msg.copy() for msg in self._tracks[track] if start_time <= msg.time < end_time]
-        for _ in range(repetitions):
-            for msg in segment:
-                msg.time += end_time - start_time
-                self._tracks[track].append(msg)
+            
 
     def quantize(self, time_value: int, quantization_value: int) -> int:
         """
