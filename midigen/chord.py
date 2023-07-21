@@ -4,9 +4,8 @@ from midigen.key import KEY_MAP
 from enum import Enum
 
 class Chord:
-    def __init__(self, root: Note, notes: List[Note] = None):
-        self.root = root
-        self.notes = [root] if notes is None else [root] + notes
+    def __init__(self, notes: List[Note]):
+        self.notes = notes
         self._calculate_start_time()
         self._calculate_duration()
             
@@ -22,7 +21,7 @@ class Chord:
         """
         self.time = min(note.time for note in self.notes)
         return self.time
-
+    
     def _calculate_duration(self) -> int:
         """
         Calculate the duration of the chord.

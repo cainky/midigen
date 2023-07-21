@@ -200,7 +200,7 @@ class MidiGen:
         """
         self._track.append(Message("note_on", note=note.pitch, velocity=note.velocity, time=note.time))
         self._track.append(
-            Message("note_off", note=note.pitch, velocity=note.velocity, time=note.duration)
+            Message("note_off", note=note.pitch, velocity=note.velocity, time=(note.time+note.duration))
         )
 
     def add_rest(self, duration: int, track: int = 0) -> None:
