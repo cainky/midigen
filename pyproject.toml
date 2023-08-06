@@ -2,7 +2,7 @@
 name = "music-python"
 version = "0.1.0"
 description = ""
-authors = ["cainky <kylecain0@gmail.com>"]
+authors = ["cainky <kylecain.me@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
