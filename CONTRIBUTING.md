@@ -1,6 +1,6 @@
-# Contributing to MusicPy
+# Contributing to MidiGen
 
-Thank you for your interest in contributing to MusicPy! Whether it's reporting bugs, discussing improvements, proposing new features, or writing and reviewing code, your contributions are welcome.
+Thank you for your interest in contributing to MidiGen! Whether it's reporting bugs, discussing improvements, proposing new features, or writing and reviewing code, your contributions are welcome.
 
 ## Getting Started
 
