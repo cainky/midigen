@@ -22,6 +22,13 @@ class TestMidigen(unittest.TestCase):
     def test_midi_gen_creation(self):
         self.assertIsNotNone(self.midi_gen)
 
+    def test_tracks(self):
+        self.assertEqual(len(self.midi_gen.midi_file.tracks), 1)
+        midigen_track = self.midi_gen.track
+        midi_file_track = self.midi_gen.midi_file.tracks[0]
+        self.assertEqual(len(midigen_track), len(midi_file_track))
+        self.assertEqual(str(midigen_track), str(midi_file_track))
+
     def test_set_tempo(self):
         self.midi_gen.set_tempo(90)
         tempo_msgs = [msg for msg in self.midi_gen._track if msg.type == "set_tempo"]
