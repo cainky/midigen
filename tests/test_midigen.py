@@ -22,9 +22,16 @@ class TestMidigen(unittest.TestCase):
     def test_midi_gen_creation(self):
         self.assertIsNotNone(self.midi_gen)
 
+    def test_tracks(self):
+        self.assertEqual(len(self.midi_gen.midi_file.tracks), 1)
+        midigen_track = self.midi_gen.track
+        midi_file_track = self.midi_gen.midi_file.tracks[0]
+        self.assertEqual(len(midigen_track), len(midi_file_track))
+        self.assertEqual(str(midigen_track), str(midi_file_track))
+
     def test_set_tempo(self):
         self.midi_gen.set_tempo(90)
-        tempo_msgs = [msg for msg in self.midi_gen._track if msg.type == "set_tempo"]
+        tempo_msgs = [msg for msg in self.midi_gen.track if msg.type == "set_tempo"]
         self.assertEqual(len(tempo_msgs), 1)
         tempo_msg = tempo_msgs[0]
         self.assertEqual(tempo_msg.type, "set_tempo")
@@ -33,7 +40,7 @@ class TestMidigen(unittest.TestCase):
     def test_set_time_signature(self):
         self.midi_gen.set_time_signature(3, 4)
         time_sig_msgs = [
-            msg for msg in self.midi_gen._track if msg.type == "time_signature"
+            msg for msg in self.midi_gen.track if msg.type == "time_signature"
         ]
         self.assertEqual(len(time_sig_msgs), 1)
         time_sig_msg = time_sig_msgs[0]

@@ -26,8 +26,7 @@ class MidiGen:
         :param key_signature: The key signature as a string, e.g., 'C' for C major.
         """
         self._midi_file = MidiFile()
-        self._track = MidiTrack()
-        self._midi_file.tracks.append(self._track)
+        self._midi_file.add_track()
         self.set_tempo(tempo)
         self.set_time_signature(*time_signature)
         if key_signature is None:
@@ -40,7 +39,7 @@ class MidiGen:
         :return: A string with the track, tempo, time signature, and key signature of the MidiGen object.
         """
         return (
-            f"Track: {self._track}\nTempo: {self.tempo}\n \
+            f"Track: {self.track}\nTempo: {self.tempo}\n \
             Time Signature: {self.time_signature}\nKey Signature: {self.key_signature}"
         )
 
@@ -74,9 +73,9 @@ class MidiGen:
             raise ValueError("Invalid tempo value: tempo must be a positive integer")
    
         # Remove existing 'set_tempo' messages
-        self._track = [msg for msg in self._track if msg.type != "set_tempo"]
+        self.midi_file.tracks[0] = [msg for msg in self.track if msg.type != "set_tempo"]
         self.tempo = bpm2tempo(tempo)
-        self._track.append(MetaMessage("set_tempo", tempo=self.tempo))
+        self.track.append(MetaMessage("set_tempo", tempo=self.tempo))
 
     def set_time_signature(self, numerator: int, denominator: int) -> None:
         """
@@ -100,12 +99,12 @@ class MidiGen:
             )
 
         # Remove existing 'time_signature' messages
-        self._track = [msg for msg in self._track if msg.type != "time_signature"]
+        self.midi_file.tracks[0] = [msg for msg in self.track if msg.type != "time_signature"]
 
         self.time_signature = MetaMessage(
             "time_signature", numerator=numerator, denominator=denominator
         )
-        self._track.append(self.time_signature)
+        self.track.append(self.time_signature)
 
     def set_key_signature(self, key: Key) -> None:
         """
@@ -118,7 +117,7 @@ class MidiGen:
             ValueError: If key is not a valid key signature string.
         """
         self.key_signature = key
-        self._track.append(MetaMessage("key_signature", key=str(key)))
+        self.track.append(MetaMessage("key_signature", key=str(key)))
 
     def add_program_change(self, channel: int, program: int) -> None:
         """
@@ -137,7 +136,7 @@ class MidiGen:
         if not isinstance(program, int) or program < 0 or program > 127:
             raise ValueError(f"Invalid program value: {program}. Program must be an integer between 0 and 127")
 
-        self._track.append(Message("program_change", channel=channel, program=program))
+        self.track.append(Message("program_change", channel=channel, program=program))
 
     def add_control_change(self, channel: int, control: int, value: int, time: int = 0) -> None:
         """
@@ -159,7 +158,7 @@ class MidiGen:
         if not isinstance(value, int) or not 0 <= value <= 127:
             raise ValueError(f"Invalid value: {value}. Value must be between 0 and 127.")
     
-        self._track.append(
+        self.track.append(
             Message(
                 "control_change",
                 channel=channel,
@@ -185,7 +184,7 @@ class MidiGen:
         if not isinstance(time, int) or time < 0:
             raise ValueError("Invalid time value: time must be a non-negative integer")
 
-        self._track.append(
+        self.track.append(
             Message("pitchwheel", channel=channel, pitch=value, time=time)
         )
     
@@ -198,8 +197,8 @@ class MidiGen:
         Raises:
             ValueError: If note, velocity, duration or time is not an integer or outside valid range.
         """
-        self._track.append(Message("note_on", note=note.pitch, velocity=note.velocity, time=note.time))
-        self._track.append(
+        self.track.append(Message("note_on", note=note.pitch, velocity=note.velocity, time=note.time))
+        self.track.append(
             Message("note_off", note=note.pitch, velocity=note.velocity, time=(note.time+note.duration))
         )
 
@@ -281,7 +280,6 @@ class MidiGen:
             raise FileNotFoundError(f"No such file or directory: '{filename}'")
         
         self._midi_file = MidiFile(filename)
-        self._track = self._midi_file.tracks[0]
         return self._midi_file
 
     @property
@@ -291,7 +289,7 @@ class MidiGen:
 
         :return: The track of the MIDI file.
         """
-        return self._track
+        return self.midi_file.tracks[0]
 
     @property
     def midi_file(self) -> MidiFile:
