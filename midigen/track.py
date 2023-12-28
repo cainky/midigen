@@ -108,10 +108,10 @@ class Track:
         Raises:
             ValueError: If note, velocity, duration or time is not an integer or outside valid range.
         """
-        self.track.append(Message("note_on", note=note.pitch, velocity=note.velocity, time=note.time))
-        self.track.append(
-            Message("note_off", note=note.pitch, velocity=note.velocity, time=(note.time+note.duration))
-        )
+        note_on_msg = Message("note_on", note=note.pitch, velocity=note.velocity, time=note.time)
+        note_off_msg = Message("note_off", note=note.pitch, velocity=note.velocity, time=(note.time+note.duration))
+        self.track.append(note_on_msg)
+        self.track.append(note_off_msg)
 
     def add_rest(self, duration: int, track: int = 0) -> None:
         last_event = self.tracks[track][-1] if self.tracks[track] else None

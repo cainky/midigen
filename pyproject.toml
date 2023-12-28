@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "music-python"
+name = "midigen"
 version = "0.1.0"
 description = ""
 authors = ["cainky <kylecain.me@gmail.com>"]
