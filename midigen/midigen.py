@@ -1,8 +1,8 @@
-from typing import List, Tuple
+from typing import Tuple
 import os, time
 from music21 import scale as m21_scale
-from mido import Message, MidiFile, MidiTrack, MetaMessage, bpm2tempo
-from midigen.key import Key, VALID_KEYS
+from mido import Message, MidiFile, MetaMessage, bpm2tempo
+from midigen.key import Key
 from midigen.track import Track
 
 
@@ -21,18 +21,18 @@ class MidiGen:
         :param key_signature: The key signature as a string, e.g., 'C' for C major.
         """
         self.midi_file = MidiFile()
-        
         self.tracks = []
+        self.active_track_index = None
+
         self.tempo = tempo
         self.time_signature = time_signature
         self.key_signature = key_signature if key_signature else Key("C")
 
-        self.set_tempo(tempo)
-        self.set_time_signature(*time_signature)
+        self.set_tempo(self.tempo)
+        self.set_time_signature(*self.time_signature)
         self.set_key_signature(self.key_signature)
 
         # Automatically add a default track
-        self.active_track_index = None
         self.add_track()
     
     def __str__(self):
@@ -44,15 +44,6 @@ class MidiGen:
             f"Track: {self.track}\nTempo: {self.tempo}\n \
             Time Signature: {self.time_signature}\nKey Signature: {self.key_signature}"
         )
-
-    @property
-    def midi_file(self) -> MidiFile:
-        """
-        Get the MIDI file.
-
-        :return: The MIDI file.
-        """
-        return self.midi_file
     
     def add_track(self):
         """
@@ -61,6 +52,8 @@ class MidiGen:
         :return: The newly created Track instance.
         """
         new_track = Track()
+        new_track.apply_global_settings(self.tempo, self.time_signature, self.key_signature)
+
         self.tracks.append(new_track)
         self.active_track_index = len(self.tracks) - 1  # Set the new track as active
         return new_track
@@ -87,7 +80,54 @@ class MidiGen:
             raise IndexError("Track index out of range.")
         
         self.active_track_index = track_index
-    
+
+    def set_tempo(self, tempo: int):
+        """
+        Set the tempo for every track in the MIDI file.
+        Args:
+            bpm (int): Beats per minute. Must be an integer greater than 0.
+        Raises:
+            ValueError: If bpm is not an integer or is less than or equal to 0.
+        """
+        if not isinstance(tempo, int) or tempo <= 0:
+            raise ValueError("Invalid tempo value: tempo must be a positive integer")
+
+        for track in self.tracks:
+            track.set_tempo(tempo)  # Assume Track class has a set_tempo method
+
+
+    def set_time_signature(self, numerator: int, denominator: int):
+        """
+        Set the time signature for every track in the MIDI file.
+
+        Args:
+            numerator (int): The numerator of the time signature. Must be an integer greater than 0.
+            denominator (int): The denominator of the time signature. Must be an integer greater than 0.
+
+        Raises:
+            ValueError: If numerator or denominator is not an integer or is less than or equal to 0.
+        """
+        if not (isinstance(numerator, int) and isinstance(denominator, int)) or numerator <= 0 or denominator <= 0:
+            raise ValueError("Invalid time signature values: numerator and denominator must be positive integers")
+        
+        self.time_signature = (numerator, denominator)
+        for track in self.tracks:
+            track.set_time_signature(numerator, denominator)
+
+    def set_key_signature(self, key: Key):
+        """
+        Set the key signature for every track in the MIDI file.
+        Args:
+            key (Key): The key signature. Must be a valid key signature (see Key class).
+        Raises:
+            ValueError: If key is not a valid key signature string.
+        """
+        if not isinstance(key, Key):
+            raise ValueError("Invalid key signature: must be a Key object")
+        
+        for track in self.tracks:
+            track.set_key_signature(key)
+
     def set_mode(self, key_signature: Key, mode: str) -> None:
         """
         Set the mode of the MidiGen object.
@@ -98,71 +138,11 @@ class MidiGen:
         allowed_modes = ['major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian']
         if mode not in allowed_modes:
             raise ValueError(f"Invalid mode. Please use a valid mode from the list: {allowed_modes}")
-    
+
         self.mode = mode
         scale_degree = m21_scale.scale_degrees_to_key(key_signature, mode)
         key = Key(scale_degree, mode)
         self.set_key_signature(key)
-
-    def set_tempo(self, tempo: int) -> None:
-        """
-        Set the tempo for the MIDI file.
-
-        Args:
-            bpm (int): Beats per minute. Must be an integer greater than 0.
-
-        Raises:
-            ValueError: If bpm is not an integer or is less than or equal to 0.
-        """
-        if not isinstance(tempo, int) or tempo <= 0:
-            raise ValueError("Invalid tempo value: tempo must be a positive integer")
-   
-        # Remove existing 'set_tempo' messages
-        self.midi_file.tracks[0] = [msg for msg in self.track if msg.type != "set_tempo"]
-        self.tempo = bpm2tempo(tempo)
-        self.track.append(MetaMessage("set_tempo", tempo=self.tempo))
-
-    def set_time_signature(self, numerator: int, denominator: int) -> None:
-        """
-        Set the time signature for the MIDI file.
-
-        Args:
-            numerator (int): The numerator of the time signature. Must be an integer greater than 0.
-            denominator (int): The denominator of the time signature. Must be an integer greater than 0.
-
-        Raises:
-            ValueError: If numerator or denominator is not an integer or is less than or equal to 0.
-        """
-        if not (isinstance(numerator, int) and isinstance(denominator, int)):
-            raise ValueError(
-                "Invalid time signature value: both numerator and denominator must be integers"
-            )
-
-        if numerator <= 0 or denominator <= 0:
-            raise ValueError(
-                "Invalid time signature value: both numerator and denominator must be positive integers"
-            )
-
-        # Remove existing 'time_signature' messages
-        self.midi_file.tracks[0] = [msg for msg in self.track if msg.type != "time_signature"]
-
-        self.time_signature = MetaMessage(
-            "time_signature", numerator=numerator, denominator=denominator
-        )
-        self.track.append(self.time_signature)
-
-    def set_key_signature(self, key: Key) -> None:
-        """
-        Set the key signature for the MIDI file.
-
-        Args:
-            key (Key): The key signature. Must be a valid key signature (see Key class).
-
-        Raises:
-            ValueError: If key is not a valid key signature string.
-        """
-        self.key_signature = key
-        self.track.append(MetaMessage("key_signature", key=str(key)))
 
     def save(self, filename: str) -> None:
         """

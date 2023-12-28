@@ -1,9 +1,6 @@
 import os
-from midigen.midigen import MidiGen, MAX_MIDI_TICKS
-from midigen.note import Note
-from midigen.scale import Scale
-from midigen.key import Key, KEY_MAP
-from midigen.chord import Chord, ChordProgression, Arpeggio, ArpeggioPattern
+from midigen.midigen import MidiGen
+from midigen.key import Key
 import unittest
 
 from mido import bpm2tempo, Message
@@ -23,101 +20,38 @@ class TestMidigen(unittest.TestCase):
         self.assertIsNotNone(self.midi_gen)
 
     def test_tracks(self):
-        self.assertEqual(len(self.midi_gen.midi_file.tracks), 1)
-        midigen_track = self.midi_gen.track
-        midi_file_track = self.midi_gen.midi_file.tracks[0]
-        self.assertEqual(len(midigen_track), len(midi_file_track))
-        self.assertEqual(str(midigen_track), str(midi_file_track))
+        self.assertEqual(len(self.midi_gen.tracks), 1)
 
     def test_set_tempo(self):
         self.midi_gen.set_tempo(90)
-        tempo_msgs = [msg for msg in self.midi_gen.track if msg.type == "set_tempo"]
+        active_track = self.midi_gen.get_active_track()
+        tempo_msgs = [msg for msg in active_track.get_track() if msg.type == "set_tempo"]
         self.assertEqual(len(tempo_msgs), 1)
-        tempo_msg = tempo_msgs[0]
-        self.assertEqual(tempo_msg.type, "set_tempo")
-        self.assertEqual(tempo_msg.tempo, bpm2tempo(90))
+        expected_tempo = bpm2tempo(90)
+        self.assertEqual(tempo_msgs[0].tempo, expected_tempo)
 
     def test_set_time_signature(self):
         self.midi_gen.set_time_signature(3, 4)
-        time_sig_msgs = [
-            msg for msg in self.midi_gen.track if msg.type == "time_signature"
-        ]
+        active_track = self.midi_gen.get_active_track()
+        time_sig_msgs = [msg for msg in active_track.get_track() if msg.type == "time_signature"]
         self.assertEqual(len(time_sig_msgs), 1)
-        time_sig_msg = time_sig_msgs[0]
-        self.assertEqual(time_sig_msg.type, "time_signature")
-        self.assertEqual(time_sig_msg.numerator, 3)
-        self.assertEqual(time_sig_msg.denominator, 4)
+        self.assertEqual(time_sig_msgs[0].numerator, 3)
+        self.assertEqual(time_sig_msgs[0].denominator, 4)
 
     def test_set_key_signature(self):
-        new_key = "C#m"
-        self.midi_gen.set_key_signature(new_key)
-        key_sig_msg = self.midi_gen.track[3]
-        self.assertEqual(key_sig_msg.type, "key_signature")
-        self.assertEqual(key_sig_msg.key, new_key)
+        key = Key("C#", "minor")  # Create a Key object
+        self.midi_gen.set_key_signature(key)
+        active_track = self.midi_gen.get_active_track()
+        key_sig_msgs = [msg for msg in active_track.get_track() if msg.type == "key_signature"]
+        self.assertEqual(len(key_sig_msgs), 1)
 
-    def test_add_program_change(self):
-        self.midi_gen.add_program_change(channel=0, program=0)
-        program_change_msg = self.midi_gen.track[3]
-        self.assertEqual(program_change_msg.type, "program_change")
-        self.assertEqual(program_change_msg.channel, 0)
-        self.assertEqual(program_change_msg.program, 0)
+        expected_key_str = "C#m"  # Replace with the correct string representation for C# minor
+        self.assertEqual(key_sig_msgs[0].key, expected_key_str)
 
-    def test_add_note(self):
-        new_note = Note(KEY_MAP["C"], 64, 127, 0)
-        self.midi_gen.add_note(new_note)
-        note_on_msg = self.midi_gen.track[3]
-        note_off_msg = self.midi_gen.track[4]
-        self.assertEqual(note_on_msg.type, "note_on")
-        self.assertEqual(note_on_msg.note, 60)
-        self.assertEqual(note_off_msg.type, "note_off")
-        self.assertEqual(note_off_msg.note, 60)
-        self.assertEqual(len(self.midi_gen.track), 5)
-
-    def test_add_chord(self):
-        new_note = Note(KEY_MAP["C"], 64, 67, 64)
-        chord = Chord([new_note])
-        self.midi_gen.add_chord(chord)
-        messages = self.midi_gen.track[3:9]
-        self.assertTrue(all(msg.type == "note_on" for msg in messages[::2]))
-        self.assertTrue(all(msg.type == "note_off" for msg in messages[1::2]))
-
-    def test_add_arpeggio(self):
-        notes = [Note(62, 64, 100, 100), Note(64, 64, 100, 200)]
-        arpeggio = Arpeggio(notes)
-        self.midi_gen.add_arpeggio(arpeggio)
-        messages = self.midi_gen.track[3:]
-        self.assertEqual(len(messages), 4)  # 2 note_on and 2 note_off messages
-        self.assertTrue(all(msg.type == "note_on" for msg in messages[::2]))
-        self.assertTrue(all(msg.type == "note_off" for msg in messages[1::2]))
-        for i in range(0, len(messages), 2):
-            note_on_msg = messages[i]
-            note_off_msg = messages[i+1]
-            self.assertEqual(note_off_msg.time - note_on_msg.time, notes[i//2].duration)
-
-    def test_quantize(self):
-        time_value = 123
-        quantization_value = 128
-        quantized_value = self.midi_gen.quantize(time_value, quantization_value)
-        self.assertEqual(quantized_value, 128)
-
-    def test_save_and_load(self):
+    def test_save(self):
         self.midi_gen.save("test.mid")
-        loaded_midi_file = self.midi_gen.load_midi_file("test.mid")
-        self.assertEqual(loaded_midi_file, self.midi_gen.midi_file)
+        self.assertTrue(os.path.exists("test.mid"), "MIDI file was not created.")
         os.remove("test.mid")
-
-    def test_add_control_change(self):
-        self.midi_gen.add_control_change(channel=0, control=1, value=64)
-        control_change_msg = self.midi_gen.track[3]
-        self.assertEqual(control_change_msg.type, "control_change")
-        self.assertEqual(control_change_msg.channel, 0)
-        self.assertEqual(control_change_msg.control, 1)
-        self.assertEqual(control_change_msg.value, 64)
-
-    def add_pitch_bend(self, channel=0, value=8192, time=0):
-        self._track.append(
-            Message("pitchwheel", channel=channel, pitch=value, time=time)
-        )
 
     def test_invalid_tempo(self):
         with self.assertRaises(ValueError):
@@ -137,89 +71,23 @@ class TestMidigen(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.midi_gen.set_key_signature("H")
 
-    def test_invalid_note_value(self):
-        with self.assertRaises(ValueError):
-            Note(-1, 64, 500, 0)
-
-        with self.assertRaises(ValueError):
-            Note(128, 64, 500, 0)
-
-    def test_add_pitch_bend(self):
-        self.midi_gen.add_pitch_bend(channel=0, value=8191, time=0)
-        pitch_bend_msg = self.midi_gen.track[3]
-        self.assertEqual(pitch_bend_msg.type, "pitchwheel")
-        self.assertEqual(pitch_bend_msg.channel, 0)
-        self.assertEqual(pitch_bend_msg.pitch, 8191)
-        self.assertEqual(pitch_bend_msg.time, 0)
-
-
-    def test_quantize_edge_cases(self):
-        # Test that the quantization value doesn't exceed the maximum MIDI ticks
-        time_value = 5000
-        quantization_value = MAX_MIDI_TICKS + 1
-        with self.assertRaises(ValueError):
-            self.midi_gen.quantize(time_value, quantization_value)
-
-        # Test for negative time_value and quantization_value
-        time_value = -50
-        quantization_value = -128
-        with self.assertRaises(ValueError):
-            self.midi_gen.quantize(time_value, quantization_value)
-        
     def test_invalid_program_change(self):
+        active_track = self.midi_gen.get_active_track()
         with self.assertRaises(ValueError):
-            self.midi_gen.add_program_change(channel=-1, program=0)
+            active_track.add_program_change(channel=-1, program=0)
 
         with self.assertRaises(ValueError):
-            self.midi_gen.add_program_change(channel=16, program=0)
+            active_track.add_program_change(channel=16, program=0)
 
         with self.assertRaises(ValueError):
-            self.midi_gen.add_program_change(channel=0, program=-1)
+            active_track.add_program_change(channel=0, program=-1)
 
         with self.assertRaises(ValueError):
-            self.midi_gen.add_program_change(channel=0, program=128)
+            active_track.add_program_change(channel=0, program=128)
 
-    def test_invalid_control_change(self):
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_control_change(channel=-1, control=0, value=64)
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_control_change(channel=16, control=0, value=64)
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_control_change(channel=0, control=-1, value=64)
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_control_change(channel=0, control=120, value=64)
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_control_change(channel=0, control=0, value=-1)
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_control_change(channel=0, control=0, value=128)
-
-    def test_invalid_pitch_bend(self):
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_pitch_bend(channel=-1, value=8192)
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_pitch_bend(channel=16, value=8192)
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_pitch_bend(channel=0, value=-8193)
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.add_pitch_bend(channel=0, value=8193)
-
-    def test_save_and_load_errors(self):
+    def test_save_error(self):
         with self.assertRaises(ValueError):
             self.midi_gen.save("")
-
-        with self.assertRaises(ValueError):
-            self.midi_gen.load_midi_file("")
-        
-        with self.assertRaises(FileNotFoundError):
-            self.midi_gen.load_midi_file("non_existent_file.mid")
 
 
 

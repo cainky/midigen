@@ -1,8 +1,9 @@
-from mido import MidiTrack, Message
+from mido import MidiTrack, Message, MetaMessage, bpm2tempo
 from typing import List
 
+
 from midigen.chord import Chord, ChordProgression, Arpeggio
-from midigen.scale import Scale
+from midigen.key import Key
 from midigen.note import Note
 from midigen.drums import DrumKit
 
@@ -18,12 +19,16 @@ class Track:
         self.track = MidiTrack()
         self.notes = []
     
-
     def get_notes(self) -> List[Note]:
         return self.notes
 
     def get_track(self):
         return self.track
+    
+    def apply_global_settings(self, tempo, time_signature, key_signature):
+        self.track.append(MetaMessage('set_tempo', tempo=bpm2tempo(tempo)))
+        self.track.append(MetaMessage('time_signature', numerator=time_signature[0], denominator=time_signature[1]))
+        self.track.append(MetaMessage('key_signature', key=str(key_signature)))
 
     def add_program_change(self, channel: int, program: int) -> None:
         """
@@ -173,3 +178,26 @@ class Track:
             raise ValueError(f"Quantization value must not exceed maximum MIDI ticks: {MAX_MIDI_TICKS}")
         
         return round(time_value / quantization_value) * quantization_value
+
+    
+    def set_tempo(self, tempo: int) -> None:
+        if not isinstance(tempo, int) or tempo <= 0:
+            raise ValueError("Invalid tempo value: tempo must be a positive integer")
+        
+        tempo_meta = bpm2tempo(tempo)
+        self.track = [msg for msg in self.track if msg.type != "set_tempo"]
+        self.track.append(MetaMessage('set_tempo', tempo=tempo_meta))
+
+    def set_time_signature(self, numerator: int, denominator: int) -> None:
+        if not (isinstance(numerator, int) and isinstance(denominator, int)) or numerator <= 0 or denominator <= 0:
+            raise ValueError("Invalid time signature values: numerator and denominator must be positive integers")
+
+        self.track = [msg for msg in self.track if msg.type != "time_signature"]
+        self.track.append(MetaMessage('time_signature', numerator=numerator, denominator=denominator))
+
+    def set_key_signature(self, key: Key) -> None:
+        if not isinstance(key, Key):
+            raise ValueError("Invalid key signature: must be a Key object")
+
+        self.track = [msg for msg in self.track if msg.type != "key_signature"]
+        self.track.append(MetaMessage('key_signature', key=str(key)))
