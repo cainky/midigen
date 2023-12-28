@@ -5,25 +5,20 @@ MidiGen is a Python class that helps you create, modify, and save MIDI files usi
 ## Usage
 
 ```python
-from midigen import MidiGen
+from midigen import MidiGen, Track, Note, Chord, Key, KEY_MAP
 
-midi_gen = MidiGen(tempo=120, time_signature=(4, 4), key_signature=0)
+midi_gen = MidiGen(tempo=120, time_signature=(4, 4), key_signature=Key("C"))
 
-# Add a program change (instrument) to channel 0
-midi_gen.add_program_change(channel=0, program=0)
+note_c = Note(pitch=KEY_MAP["C"], velocity=64, duration=480, time=0)
+note_e = Note(pitch=KEY_MAP["E"], velocity=64, duration=480, time=0)
+note_g = Note(pitch=KEY_MAP["G"], velocity=64, duration=480, time=0)
 
-# Add notes
-midi_gen.add_Note(KEY_MAP["C"], 64, 500)
-midi_gen.add_note(62, 64, 500)
+c_major_chord = Chord([note_c, note_e, note_g])
 
-# Add a chord
-midi_gen.add_chord([60, 64, 67], 64, 500)
+track = midi_gen.get_active_track()
+track.add_chord(c_major_chord)
 
-# Add an arpeggio
-midi_gen.add_arpeggio([60, 64, 67], 64, 500, 125)
-
-# Save the MIDI file
-midi_gen.save('output.mid')
+midi_gen.save("example_song_with_chord.mid")
 ```
 
 ### Class Methods
@@ -102,30 +97,3 @@ The key signature of the MIDI file.
 
 The Mido MidiTrack object associated with the MidiGen instance.
 
-
-## Libraries
-
-
-### mido
-mido is a Python library for working with MIDI (Musical Instrument Digital Interface) messages and files. MIDI is a protocol for representing and communicating musical information, such as notes, control changes, and timing events. The mido library makes it easy to create, parse, and manipulate MIDI messages in Python, as well as read and write MIDI files.
-
-Some key features of mido include:
-
-- MIDI Message handling: mido provides an intuitive interface for creating, parsing, and manipulating MIDI messages, including note on/off, control change, program change, and more.
-- MIDI File support: The library allows you to read and write standard MIDI files, which can be used to store and exchange musical information between software and hardware.
-- Real-time MIDI I/O: mido supports sending and receiving MIDI messages in real-time using various backends, such as PortMidi, RtMidi, and more. This enables communication with external MIDI devices or software synthesizers.
-- MIDI ports and devices: The library can work with MIDI ports and devices, allowing you to connect to and interact with various hardware and software synthesizers, controllers, and sequencers.
-
-mido is a versatile and accessible library for working with MIDI in Python, making it suitable for a wide range of applications, from simple data conversions to more complex real-time MIDI processing and interaction.
-
-<br/>
-
-### isobar
-isobar is a Python library for creating and manipulating musical patterns. It provides a high-level interface for working with musical structures, such as sequences, transformations, and scheduling. It can be a powerful tool for composers, musicians, and researchers working with algorithmic music composition and generative systems.
-
-Here are some of the key features of isobar:
-
-- High-level pattern manipulation: isobar provides several built-in pattern classes that can be combined, transformed, and scheduled easily.
-- MIDI output: The library supports sending MIDI events to external synthesizers or software, allowing you to integrate it with a variety of music-making environments.
-- Flexible scheduling: isobar includes a flexible timing system that allows you to schedule events with precise timing, control tempo, and create complex rhythmic structures.
-- Generative algorithms: The library includes built-in support for various generative algorithms, such as Markov chains and Euclidean rhythms, to help create interesting and evolving musical patterns.
