@@ -125,9 +125,6 @@ class Track:
         Add a chord (simultaneous notes) to the track.
 
         :param chord: A Chord object.
-        :param velocity: The velocity of the notes.
-        :param duration: The duration of the notes.
-        :param time: Optional, the time to schedule the chord.
         """
         for note in chord.get_chord():
             self.add_note(note)

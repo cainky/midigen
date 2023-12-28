@@ -41,7 +41,7 @@ class MidiGen:
         :return: A string with the track, tempo, time signature, and key signature of the MidiGen object.
         """
         return (
-            f"Track: {self.track}\nTempo: {self.tempo}\n \
+            f"Track: {self.tracks}\nTempo: {self.tempo}\n \
             Time Signature: {self.time_signature}\nKey Signature: {self.key_signature}"
         )
     
