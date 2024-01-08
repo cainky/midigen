@@ -13,7 +13,7 @@ music21 = "^9.1.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
-flake8 = "^6.1.0"
+flake8 = ">=6.1,<8.0"
 
 [build-system]
 requires = ["poetry-core"]
