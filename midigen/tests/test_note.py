@@ -2,12 +2,13 @@ from midigen.note import Note
 from midigen.key import KEY_MAP
 import unittest
 
+
 class TestNote(unittest.TestCase):
     def setUp(self):
-        self.note = Note(KEY_MAP["C"], 64, 100, 0)
+        self.note = Note(KEY_MAP["C4"], 64, 100, 0)
 
     def test_note_creation(self):
-        self.assertEqual(self.note.pitch, KEY_MAP["C"])
+        self.assertEqual(self.note.pitch, KEY_MAP["C4"])
         self.assertEqual(self.note.velocity, 64)
         self.assertEqual(self.note.duration, 100)
         self.assertEqual(self.note.time, 0)
@@ -24,6 +25,7 @@ class TestNote(unittest.TestCase):
             Note(-1, 64, 100, 0)
         with self.assertRaises(ValueError):
             Note(128, 64, 100, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

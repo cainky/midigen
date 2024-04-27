@@ -12,7 +12,7 @@ class TestTrack(unittest.TestCase):
         self.track = self.midi_gen.get_active_track()
 
     def test_add_note(self):
-        new_note = Note(KEY_MAP["C"], 64, 127, 0)
+        new_note = Note(KEY_MAP["C4"], 64, 127, 0)
         self.track.add_note(new_note)
         messages = self.track.get_track()
         note_on_msgs = [
@@ -27,7 +27,7 @@ class TestTrack(unittest.TestCase):
         )
 
     def test_add_chord(self):
-        new_note = Note(KEY_MAP["C"], velocity=64, duration=120, time=0)
+        new_note = Note(KEY_MAP["C4"], velocity=64, duration=120, time=0)
         chord = Chord([new_note, new_note + 4, new_note + 7])  # Simple C major triad
         self.track.add_chord(chord)
         messages = self.track.get_track()
@@ -41,9 +41,9 @@ class TestTrack(unittest.TestCase):
 
     def test_add_arpeggio(self):
         notes = [
-            Note(KEY_MAP["C"], 64, 100, 0),
-            Note(KEY_MAP["E"], 64, 100, 100),
-            Note(KEY_MAP["G"], 64, 100, 200),
+            Note(KEY_MAP["C4"], 64, 100, 0),
+            Note(KEY_MAP["E4"], 64, 100, 100),
+            Note(KEY_MAP["G4"], 64, 100, 200),
         ]
         arpeggio = Arpeggio(notes)
         self.track.add_arpeggio(arpeggio)
@@ -132,9 +132,9 @@ class TestTrack(unittest.TestCase):
 
     def test_chord_notes_start_simultaneously(self):
         # Create notes for a C major chord
-        note_c = Note(pitch=KEY_MAP["C"], velocity=64, duration=480, time=0)
-        note_e = Note(pitch=KEY_MAP["E"], velocity=64, duration=480, time=0)
-        note_g = Note(pitch=KEY_MAP["G"], velocity=64, duration=480, time=0)
+        note_c = Note(pitch=KEY_MAP["C4"], velocity=64, duration=480, time=0)
+        note_e = Note(pitch=KEY_MAP["E4"], velocity=64, duration=480, time=0)
+        note_g = Note(pitch=KEY_MAP["G4"], velocity=64, duration=480, time=0)
 
         # Create a chord and add it to the track
         c_major_chord = Chord([note_c, note_e, note_g])

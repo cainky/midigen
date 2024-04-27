@@ -39,9 +39,9 @@ from midigen import MidiGen, Track, Note, Chord, Key, KEY_MAP
 
 midi_gen = MidiGen(tempo=120, time_signature=(4, 4), key_signature=Key("C"))
 
-note_c = Note(pitch=KEY_MAP["C"], velocity=64, duration=480, time=0)
-note_e = Note(pitch=KEY_MAP["E"], velocity=64, duration=480, time=0)
-note_g = Note(pitch=KEY_MAP["G"], velocity=64, duration=480, time=0)
+note_c = Note(pitch=KEY_MAP["C4"], velocity=64, duration=480, time=0)
+note_e = Note(pitch=KEY_MAP["E4"], velocity=64, duration=480, time=0)
+note_g = Note(pitch=KEY_MAP["G4"], velocity=64, duration=480, time=0)
 
 c_major_chord = Chord([note_c, note_e, note_g])
 
