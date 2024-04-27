@@ -1,6 +1,36 @@
 # MidiGen
 
-MidiGen is a Python class that helps you create, modify, and save MIDI files using the Mido library. It provides an object-oriented approach for managing MIDI files and simplifies common MIDI operations such as adding notes, chords, and arpeggios, changing instruments, and managing tempo, time signatures, and key signatures.
+MidiGen is a Python class that helps you create, modify, and save MIDI files using the Mido library. It provides an object-oriented approach for managing MIDI files and simplifies common MIDI operations such as adding notes, chords, arpeggios, changing instruments, as well as managing tempo, time signatures, and key signatures.
+
+## Features
+
+- **Dynamic MIDI Creation**: Quickly generate MIDI files programmatically.
+- **Note and Chord Support**: Easily add notes or chords to your MIDI tracks.
+- **Advanced Musical Constructs**: Support for multiple tracks, simultaneous notes, and drum patterns.
+- **Humanization**: Apply slight timing variations to mimic human play.
+
+## Installation
+
+First, install Poetry if you haven't already:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+```
+
+Then, clone the repository and install dependencies using Poetry:
+
+```bash
+git clone https://github.com/cainky/midigen.git
+cd midigen
+poetry install
+```
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## License
+
+MidiGen is distributed under the GNU General Public License, Version 3, allowing for free software distribution and modification while ensuring that all copies and modified versions remain free.
 
 ## Usage
 
@@ -96,4 +126,3 @@ The key signature of the MIDI file.
 ### track
 
 The Mido MidiTrack object associated with the MidiGen instance.
-
