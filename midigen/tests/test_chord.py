@@ -176,7 +176,12 @@ class TestChordProgression(unittest.TestCase):
 
 class TestArpeggio(unittest.TestCase):
     def setUp(self):
-        self.notes = [Note(60, 64, 100, 0), Note(62, 64, 100, 0), Note(64, 64, 100, 0)]
+        # Updated to use the new KEY_MAP with octaves
+        self.notes = [
+            Note(KEY_MAP["C4"], 64, 100, 0),
+            Note(KEY_MAP["D4"], 64, 100, 0),
+            Note(KEY_MAP["E4"], 64, 100, 0),
+        ]
         self.arpeggio = Arpeggio(
             self.notes, delay=100, pattern=ArpeggioPattern.ASCENDING, loops=1
         )
@@ -188,7 +193,11 @@ class TestArpeggio(unittest.TestCase):
         sequential_notes = self.arpeggio.get_sequential_notes()
         self.assertEqual(
             sequential_notes,
-            [Note(60, 64, 100, 0), Note(62, 64, 100, 100), Note(64, 64, 100, 200)],
+            [
+                Note(KEY_MAP["C4"], 64, 100, 0),
+                Note(KEY_MAP["D4"], 64, 100, 100),
+                Note(KEY_MAP["E4"], 64, 100, 200),
+            ],
         )
 
     def test_get_sequential_notes_ascending(self):
@@ -197,9 +206,9 @@ class TestArpeggio(unittest.TestCase):
         )
         sequential_notes = arpeggio.get_sequential_notes()
         expected_notes = [
-            Note(60, 64, 100, 0),
-            Note(62, 64, 100, 100),
-            Note(64, 64, 100, 200),
+            Note(KEY_MAP["C4"], 64, 100, 0),
+            Note(KEY_MAP["D4"], 64, 100, 100),
+            Note(KEY_MAP["E4"], 64, 100, 200),
         ]
         self.assertEqual(sequential_notes, expected_notes)
 
@@ -209,9 +218,9 @@ class TestArpeggio(unittest.TestCase):
         )
         sequential_notes = arpeggio.get_sequential_notes()
         expected_notes = [
-            Note(64, 64, 100, 0),
-            Note(62, 64, 100, 100),
-            Note(60, 64, 100, 200),
+            Note(KEY_MAP["E4"], 64, 100, 0),
+            Note(KEY_MAP["D4"], 64, 100, 100),
+            Note(KEY_MAP["C4"], 64, 100, 200),
         ]
         self.assertEqual(sequential_notes, expected_notes)
 
@@ -221,11 +230,11 @@ class TestArpeggio(unittest.TestCase):
         )
         sequential_notes = arpeggio.get_sequential_notes()
         expected_notes = [
-            Note(60, 64, 100, 0),
-            Note(62, 64, 100, 100),
-            Note(64, 64, 100, 200),
-            Note(64, 64, 100, 300),
-            Note(62, 64, 100, 400),
-            Note(60, 64, 100, 500),
+            Note(KEY_MAP["C4"], 64, 100, 0),
+            Note(KEY_MAP["D4"], 64, 100, 100),
+            Note(KEY_MAP["E4"], 64, 100, 200),
+            Note(KEY_MAP["E4"], 64, 100, 300),
+            Note(KEY_MAP["D4"], 64, 100, 400),
+            Note(KEY_MAP["C4"], 64, 100, 500),
         ]
         self.assertEqual(sequential_notes, expected_notes)
