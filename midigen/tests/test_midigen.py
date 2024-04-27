@@ -72,7 +72,7 @@ class TestMidigen(unittest.TestCase):
         track = self.midi_gen.get_active_track()
         track.add_note(self.note)
         # Save the MIDI file
-        self.midi_gen.save(self.filename)
+        filename = self.midi_gen.save(self.filename)
         self.assertTrue(os.path.exists(self.filename), "MIDI file was not created.")
 
         # Load the saved MIDI file to check the messages
@@ -105,6 +105,7 @@ class TestMidigen(unittest.TestCase):
                 self.note.duration,
                 "The duration of the note does not match the expected value.",
             )
+        os.remove(filename)
 
     def test_invalid_tempo(self):
         with self.assertRaises(ValueError):

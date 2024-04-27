@@ -1,5 +1,6 @@
 from typing import Tuple
-import os, time
+import os
+import time
 from music21 import scale as m21_scale
 from mido import MidiFile
 from midigen.key import Key
@@ -34,17 +35,15 @@ class MidiGen(MidiFile):
 
         # Automatically add a default track
         self.add_track()
-    
+
     def __str__(self):
         """
         Return a string representation of the MidiGen object.
         :return: A string with the track, tempo, time signature, and key signature of the MidiGen object.
         """
-        return (
-            f"Track: {self.tracks}\nTempo: {self.tempo}\n \
+        return f"Track: {self.tracks}\nTempo: {self.tempo}\n \
             Time Signature: {self.time_signature}\nKey Signature: {self.key_signature}"
-        )
-    
+
     def add_track(self):
         """
         Add a new track to the MIDI composition and sets it as the active track.
@@ -52,7 +51,9 @@ class MidiGen(MidiFile):
         :return: The newly created Track instance.
         """
         new_track = Track()
-        new_track.apply_global_settings(self.tempo, self.time_signature, self.key_signature)
+        new_track.apply_global_settings(
+            self.tempo, self.time_signature, self.key_signature
+        )
 
         self.tracks.append(new_track)
         self.active_track_index = len(self.tracks) - 1  # Set the new track as active
@@ -69,7 +70,7 @@ class MidiGen(MidiFile):
             return self.tracks[0]
 
         return self.tracks[self.active_track_index]
-    
+
     def set_active_track(self, track_index):
         """
         Sets the active track based on the provided track index.
@@ -78,7 +79,7 @@ class MidiGen(MidiFile):
         """
         if track_index >= len(self.tracks):
             raise IndexError("Track index out of range.")
-        
+
         self.active_track_index = track_index
 
     def set_tempo(self, tempo: int):
@@ -95,7 +96,6 @@ class MidiGen(MidiFile):
         for track in self.tracks:
             track.set_tempo(tempo)
 
-
     def set_time_signature(self, numerator: int, denominator: int):
         """
         Set the time signature for every track in the MIDI file.
@@ -107,9 +107,15 @@ class MidiGen(MidiFile):
         Raises:
             ValueError: If numerator or denominator is not an integer or is less than or equal to 0.
         """
-        if not (isinstance(numerator, int) and isinstance(denominator, int)) or numerator <= 0 or denominator <= 0:
-            raise ValueError("Invalid time signature values: numerator and denominator must be positive integers")
-        
+        if (
+            not (isinstance(numerator, int) and isinstance(denominator, int))
+            or numerator <= 0
+            or denominator <= 0
+        ):
+            raise ValueError(
+                "Invalid time signature values: numerator and denominator must be positive integers"
+            )
+
         self.time_signature = (numerator, denominator)
         for track in self.tracks:
             track.set_time_signature(numerator, denominator)
@@ -124,7 +130,7 @@ class MidiGen(MidiFile):
         """
         if not isinstance(key, Key):
             raise ValueError("Invalid key signature: must be a Key object")
-        
+
         for track in self.tracks:
             track.set_key_signature(key)
 
@@ -135,15 +141,25 @@ class MidiGen(MidiFile):
         :param key_signature: The key signature, e.g. 'C'.
         :param mode: The mode, e.g. 'major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'.
         """
-        allowed_modes = ['major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian']
+        allowed_modes = [
+            "major",
+            "dorian",
+            "phrygian",
+            "lydian",
+            "mixolydian",
+            "aeolian",
+            "locrian",
+        ]
         if mode not in allowed_modes:
-            raise ValueError(f"Invalid mode. Please use a valid mode from the list: {allowed_modes}")
+            raise ValueError(
+                f"Invalid mode. Please use a valid mode from the list: {allowed_modes}"
+            )
 
         self.mode = mode
         scale_degree = m21_scale.scale_degrees_to_key(key_signature, mode)
         key = Key(scale_degree, mode)
         self.set_key_signature(key)
-    
+
     def save(self, filename: str) -> None:
         """
         Compile all tracks and save the MIDI file to the specified path.
@@ -166,10 +182,14 @@ class MidiGen(MidiFile):
 
         try:
             self.midi_file.save(filename)
+            return filename
         except FileNotFoundError:
-            raise ValueError(f"Cannot save file: Invalid filename or directory: '{filename}'")
+            raise ValueError(
+                f"Cannot save file: Invalid filename or directory: '{filename}'"
+            )
         except PermissionError:
-            raise ValueError(f"Cannot save file: Permission denied for directory: '{filename}'")
+            raise ValueError(
+                f"Cannot save file: Permission denied for directory: '{filename}'"
+            )
         except Exception as e:
             raise ValueError(f"Cannot save file: Unknown error: {str(e)}")
-
