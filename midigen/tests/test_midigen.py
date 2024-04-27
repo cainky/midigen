@@ -10,8 +10,12 @@ from mido import bpm2tempo, Message
 
 class TestMidigen(unittest.TestCase):
     def setUp(self):
+        self.output_dir = os.path.join(os.getcwd(), "generate", "output")
+        self.filename = os.path.join(self.output_dir, "test.mid")
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+
         self.midi_gen = MidiGen()
-        self.filename = "test.mid"
 
     def tearDown(self):
         if os.path.exists(self.filename):

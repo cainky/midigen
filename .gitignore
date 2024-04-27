@@ -1,5 +1,6 @@
 **/.vscode
 **/*.mid
+generate/*.*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

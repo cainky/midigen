@@ -1,10 +1,10 @@
 from typing import Tuple
 import os
-import time
 from music21 import scale as m21_scale
 from mido import MidiFile
 from midigen.key import Key
 from midigen.track import Track
+from pathlib import Path
 
 
 class MidiGen(MidiFile):
@@ -175,14 +175,15 @@ class MidiGen(MidiFile):
             track.add_note_off_messages()
             self.midi_file.tracks.append(track.get_track())
 
-        # Check for existing file and create a unique filename if necessary
-        if os.path.exists(filename):
-            base, ext = os.path.splitext(filename)
-            filename = f"{base}_{int(time.time())}{ext}"
-
+        # output_dir = os.path.join(os.getcwd(), "generate", "output")
+        project_root = find_project_root()
+        output_dir = os.path.join(project_root, "generate", "output")
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)  # Recursively create directory if it does not exist
+        filepath = os.path.join(output_dir, filename)
         try:
-            self.midi_file.save(filename)
-            return filename
+            self.midi_file.save(filename=filepath)
+            return filepath
         except FileNotFoundError:
             raise ValueError(
                 f"Cannot save file: Invalid filename or directory: '{filename}'"
@@ -193,3 +194,20 @@ class MidiGen(MidiFile):
             )
         except Exception as e:
             raise ValueError(f"Cannot save file: Unknown error: {str(e)}")
+
+
+def find_project_root() -> Path:
+    """
+    Attempts to locate the project root by ascending until a known marker file is found.
+    """
+    # Start from the current working directory.
+    current_dir = Path.cwd()
+
+    # Traverse up until we find the marker file or the root of the filesystem.
+    for parent in current_dir.parents:
+        # Check for a common project marker or directory
+        if (parent / ".git").exists() or (parent / "pyproject.toml").exists():
+            return parent
+
+    # If no marker is found, we just return the current working directory or you could raise an exception
+    return current_dir
