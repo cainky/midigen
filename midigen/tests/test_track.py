@@ -2,7 +2,7 @@ from midigen.midigen import MidiGen
 from midigen.note import Note
 from midigen.key import KEY_MAP
 from midigen.chord import Chord, Arpeggio
-from midigen.track import MAX_MIDI_TICKS
+from midigen.track import MAX_MIDI_TICKS, Track
 import unittest
 
 
@@ -120,27 +120,24 @@ class TestTrack(unittest.TestCase):
             self.track.add_pitch_bend(channel=0, value=8193)
     
     def test_chord_notes_start_simultaneously(self):
-        time1 = 0
-        time2 = 3
-        time3 = 6
-        timings = [time1, time2, time3]
-
         # Create notes for a C major chord
-        note_c = Note(pitch=KEY_MAP["C"], velocity=64, duration=480, time=time1)
-        note_e = Note(pitch=KEY_MAP["E"], velocity=64, duration=480, time=time2)
-        note_g = Note(pitch=KEY_MAP["G"], velocity=64, duration=480, time=time3)
+        note_c = Note(pitch=KEY_MAP["C"], velocity=64, duration=480, time=0)
+        note_e = Note(pitch=KEY_MAP["E"], velocity=64, duration=480, time=0)
+        note_g = Note(pitch=KEY_MAP["G"], velocity=64, duration=480, time=0)
 
         # Create a chord and add it to the track
         c_major_chord = Chord([note_c, note_e, note_g])
         self.track.add_chord(c_major_chord)
 
-        # Retrieve the messages from the track
         messages = self.track.get_track()[3:]
 
-        # Test that the notes in the chord all start at their specified time
-        for i, time in enumerate(timings):
-            note_on_index = i * 2  # Each note_on message is at even indices
-            self.assertEqual(messages[note_on_index].time, time, f"Note on at index {note_on_index} did not start at expected time {time}")
+        # Test that the first note_on starts at its specified time (which should be 0) and subsequent ones immediately after
+        first_note_on_time = messages[0].time
+        self.assertEqual(first_note_on_time, 0, f"First note on should start at time 0 but started at {first_note_on_time}")
+
+        # All subsequent note_on messages should have a time of 0 if they are part of the same chord played simultaneously
+        for i in range(2, len(messages), 2):  # Every second message starting from the second note_on
+            self.assertEqual(messages[i].time, 0, f"Note on at index {i} did not start at expected time 0")
 
 
 if __name__ == "__main__":

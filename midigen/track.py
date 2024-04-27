@@ -19,6 +19,9 @@ class Track:
         self.track = MidiTrack()
         self.notes = []
     
+    def __str__(self):
+        return f"Notes: {self.notes}"
+    
     def get_notes(self) -> List[Note]:
         return self.notes
 
@@ -109,9 +112,21 @@ class Track:
             ValueError: If note, velocity, duration or time is not an integer or outside valid range.
         """
         note_on_msg = Message("note_on", note=note.pitch, velocity=note.velocity, time=note.time)
-        note_off_msg = Message("note_off", note=note.pitch, velocity=note.velocity, time=(note.time+note.duration))
         self.track.append(note_on_msg)
-        self.track.append(note_off_msg)
+        self.notes.append(note)
+    
+    def add_note_off_messages(self) -> None:
+        """
+        This method is crucial for preventing timing offsets if the sequence 
+        of note_on and note_off messages is not properly managed due to the fundamental design of MIDI
+        
+        Should be called after all notes or chords are added to the track and before the track is saved or further 
+        processed. This is especially important in a live setting or when dynamically adding notes to ensure that 
+        playback reflects the exact intended timing without any shifts.
+        """
+        for note in self.notes:
+            note_off_msg = Message("note_off", note=note.pitch, velocity=note.velocity, time=(note.time+note.duration))
+            self.track.append(note_off_msg)
 
     def add_rest(self, duration: int, track: int = 0) -> None:
         last_event = self.tracks[track][-1] if self.tracks[track] else None

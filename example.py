@@ -13,5 +13,4 @@ c_major_chord = Chord([note_c, note_e, note_g])
 
 track = midi_gen.get_active_track()
 track.add_chord(c_major_chord)
-print(midi_gen)
 midi_gen.save("example.mid")

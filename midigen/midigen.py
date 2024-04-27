@@ -1,12 +1,12 @@
 from typing import Tuple
 import os, time
 from music21 import scale as m21_scale
-from mido import Message, MidiFile, MetaMessage, bpm2tempo
+from mido import MidiFile
 from midigen.key import Key
 from midigen.track import Track
 
 
-class MidiGen:
+class MidiGen(MidiFile):
     def __init__(
         self,
         tempo: int = 120,
@@ -93,7 +93,7 @@ class MidiGen:
             raise ValueError("Invalid tempo value: tempo must be a positive integer")
 
         for track in self.tracks:
-            track.set_tempo(tempo)  # Assume Track class has a set_tempo method
+            track.set_tempo(tempo)
 
 
     def set_time_signature(self, numerator: int, denominator: int):
@@ -143,7 +143,7 @@ class MidiGen:
         scale_degree = m21_scale.scale_degrees_to_key(key_signature, mode)
         key = Key(scale_degree, mode)
         self.set_key_signature(key)
-
+    
     def save(self, filename: str) -> None:
         """
         Compile all tracks and save the MIDI file to the specified path.
@@ -156,6 +156,7 @@ class MidiGen:
         """
         self.midi_file.tracks.clear()
         for track in self.tracks:
+            track.add_note_off_messages()
             self.midi_file.tracks.append(track.get_track())
 
         # Check for existing file and create a unique filename if necessary
@@ -163,7 +164,6 @@ class MidiGen:
             base, ext = os.path.splitext(filename)
             filename = f"{base}_{int(time.time())}{ext}"
 
-        # Attempt to save the MIDI file
         try:
             self.midi_file.save(filename)
         except FileNotFoundError:
@@ -172,3 +172,4 @@ class MidiGen:
             raise ValueError(f"Cannot save file: Permission denied for directory: '{filename}'")
         except Exception as e:
             raise ValueError(f"Cannot save file: Unknown error: {str(e)}")
+

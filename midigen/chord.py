@@ -20,12 +20,6 @@ class Chord:
         Returns:
             The start time of the chord.
         """
-        if len(self.notes) == 0:
-            return 0
-        if len(self.notes) == 1:
-            self.time = self.notes[0].time
-            return self.time
-        
         self.time = min(note.time for note in self.notes)
         return self.time
     
@@ -36,7 +30,16 @@ class Chord:
         Returns:
             The duration of the longest note in the chord.
         """
-        self.duration = max(note.duration for note in self.notes)
+        if not self.notes:
+            return 0
+
+        # Find the earliest start time of any note in the chord
+        earliest_start_time = min(note.time for note in self.notes)
+        # Find the latest ending time, calculated as start time plus duration for each note
+        latest_end_time = max(note.time + note.duration for note in self.notes)
+
+        # The duration of the chord is the difference between the earliest start and the latest end
+        self.duration = latest_end_time - earliest_start_time
         return self.duration
 
     def add_note(self, note: Note) -> None:
