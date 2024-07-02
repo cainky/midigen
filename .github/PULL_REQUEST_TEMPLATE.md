@@ -1,19 +1,22 @@
 ## Description
 
-Please provide a brief summary of the changes made and the issue it addresses.
+Please provide a brief summary of the changes made and the issue it addresses. Please also include relevant motivation and context. List any dependencies that are required for this change.
 
 Fixes #(issue)
 
 ## Changes and Fixes
 
-- [ ] I've added a new feature (provide details).
-- [ ] I've fixed a bug (give a brief explanation of how it was resolved).
-- [ ] I've made a breaking change (describe what was changed).
-- [ ] I've made an enhancement to an existing feature (describe what was enhanced).
+- [ ] Bug fix (non-breaking change which fixes an issue)
+- [ ] New feature (non-breaking change which adds functionality)
+- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] This change requires a documentation update
 
 ## How Has This Been Tested?
 
 Please describe the tests that you ran to verify your changes. Include any relevant details for test configurations and how to reproduce the tests.
+
+- [ ] Test A
+- [ ] Test B
 
 ## Checklist:
 
@@ -24,3 +27,7 @@ Please describe the tests that you ran to verify your changes. Include any relev
 - [ ] My changes do not generate new warnings.
 - [ ] I have added tests that prove my changes are effective.
 - [ ] New and existing unit tests pass locally with my changes.
+
+## Additional context
+
+Add any other context or screenshots about the pull request here.
