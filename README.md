@@ -30,7 +30,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
-MidiGen is distributed under the GNU General Public License, Version 3, allowing for free software distribution and modification while ensuring that all copies and modified versions remain free.
+MidiGen is distributed under the [GNU General Public License, Version 3](./LICENSE), allowing for free software distribution and modification while ensuring that all copies and modified versions remain free.
 
 ## Usage
 
