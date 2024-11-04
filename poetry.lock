@@ -538,13 +538,13 @@ files = [
 
 [[package]]
 name = "music21"
-version = "9.1.0"
+version = "9.3.0"
 description = "A Toolkit for Computer-Aided Musical Analysis and Computational Musicology."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "music21-9.1.0-py3-none-any.whl", hash = "sha256:f3d312159be73867bd86fb0b6f201fc7285e5f6886d6f0c0a115eeeff0e67741"},
-    {file = "music21-9.1.0.tar.gz", hash = "sha256:6c61425c7af5bf54e120afebabcffdb22be32620b0ea22b0d8e36ac5eafaefc8"},
+    {file = "music21-9.3.0-py3-none-any.whl", hash = "sha256:486763ad31750fe60035242fb054160a278b9d9bc922406795e887fff6809f0b"},
+    {file = "music21-9.3.0.tar.gz", hash = "sha256:0cf4c67da2062ec164037280580d51ed06b58e84f78afc8d00f088c2bff74f4a"},
 ]
 
 [package.dependencies]
