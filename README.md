@@ -1,4 +1,5 @@
 # MidiGen
+Created by Kyle Cain
 
 MidiGen is a Python class that helps you create, modify, and save MIDI files using the Mido library. It provides an object-oriented approach for managing MIDI files and simplifies common MIDI operations such as adding notes, chords, arpeggios, changing instruments, as well as managing tempo, time signatures, and key signatures.
 
