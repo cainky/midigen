@@ -538,13 +538,13 @@ files = [
 
 [[package]]
 name = "music21"
-version = "9.3.0"
+version = "9.5.0"
 description = "A Toolkit for Computer-Aided Musical Analysis and Computational Musicology."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "music21-9.3.0-py3-none-any.whl", hash = "sha256:486763ad31750fe60035242fb054160a278b9d9bc922406795e887fff6809f0b"},
-    {file = "music21-9.3.0.tar.gz", hash = "sha256:0cf4c67da2062ec164037280580d51ed06b58e84f78afc8d00f088c2bff74f4a"},
+    {file = "music21-9.5.0-py3-none-any.whl", hash = "sha256:70e4af1d7e73fd5be803c98fbd0d8a9c994e38b9d46fd7475d69212156cf785d"},
+    {file = "music21-9.5.0.tar.gz", hash = "sha256:f888a84f7abfa6e727b7028cdbf7b7bd9fa746009b766ca604fb749a67078d1a"},
 ]
 
 [package.dependencies]
@@ -553,7 +553,7 @@ joblib = "*"
 jsonpickle = "*"
 matplotlib = "*"
 more-itertools = "*"
-numpy = "*"
+numpy = "<2.0.0"
 requests = "*"
 webcolors = ">=1.5"
 
@@ -947,4 +947,4 @@ tests = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a51248029dad83efee852e3ab68fcd5274dc8eef8f7e5757813e8fbcd1577f57"
+content-hash = "bb4aa6caf4b1dfe15acc8141f223235032c7014f55c866120ff191e7a090da1c"
