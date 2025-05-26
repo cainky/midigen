@@ -557,14 +557,14 @@ files = [
 
 [[package]]
 name = "music21"
-version = "9.5.0"
+version = "9.7.0"
 description = "A Toolkit for Computer-Aided Musical Analysis and Computational Musicology."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "music21-9.5.0-py3-none-any.whl", hash = "sha256:70e4af1d7e73fd5be803c98fbd0d8a9c994e38b9d46fd7475d69212156cf785d"},
-    {file = "music21-9.5.0.tar.gz", hash = "sha256:f888a84f7abfa6e727b7028cdbf7b7bd9fa746009b766ca604fb749a67078d1a"},
+    {file = "music21-9.7.0-py3-none-any.whl", hash = "sha256:2b60421fbe8ecb5ab32e2780ba50de7e321f889880727f5140880d135bcf1e23"},
+    {file = "music21-9.7.0.tar.gz", hash = "sha256:eaf59593a54ea43ae4f723691711bee8eb6a1b18d0f8f6b1fe7ffcd3e5024931"},
 ]
 
 [package.dependencies]
@@ -989,4 +989,4 @@ tests = ["pytest", "pytest-cov"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "bb4aa6caf4b1dfe15acc8141f223235032c7014f55c866120ff191e7a090da1c"
+content-hash = "3daf56b74c04a6f3cfb5626bf2eae5d9b3d096e7c1e948a5f54e45ab0e5420d3"
