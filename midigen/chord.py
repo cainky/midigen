@@ -1,7 +1,9 @@
 from typing import List
 from midigen.note import Note
-from midigen.key import KEY_MAP
+from midigen.key import KEY_MAP, Key
 from enum import Enum
+import music21
+
 
 class Chord:
     def __init__(self, notes: List[Note]):
@@ -9,7 +11,7 @@ class Chord:
         self.root = self.get_root()
         self._calculate_start_time()
         self._calculate_duration()
-            
+
     def __str__(self) -> str:
         return f"[{', '.join(str(note) for note in self.notes)}]"
 
@@ -20,9 +22,9 @@ class Chord:
         Returns:
             The start time of the chord.
         """
-        self.time = min(note.time for note in self.notes)
+        self.time = min(note.time for note in self.notes) if self.notes else 0
         return self.time
-    
+
     def _calculate_duration(self) -> int:
         """
         Calculate the duration of the chord.
@@ -51,8 +53,10 @@ class Chord:
         return self.notes
 
     def get_root(self) -> Note:
-        self.root = self.notes[0]
-        return self.root
+        if self.notes:
+            self.root = self.notes[0]
+            return self.root
+        return None
 
     def major_triad(self) -> List[Note]:
         return [self.root, self.root + 4, self.root + 7]
@@ -93,18 +97,18 @@ class ChordProgression:
 
     def __str__(self) -> str:
         return f"[{', '.join(str(chord) for chord in self.chords)}]"
-    
+
     def get_progression(self) -> List[Chord]:
         return self.chords
 
     def _calculate_duration(self) -> int:
         self.duration = sum(chord._calculate_duration() for chord in self.chords)
         return self.duration
-    
+
     def _calculate_start_time(self) -> int:
-        self.time = min(chord._calculate_start_time() for chord in self.chords)
+        self.time = min(chord._calculate_start_time() for chord in self.chords) if self.chords else 0
         return self.time
-    
+
     def __eq__(self, other) -> bool:
         return self.chords == other.chords
 
@@ -118,13 +122,53 @@ class ChordProgression:
         self._calculate_duration()
         self._calculate_start_time()
 
+    @classmethod
+    def from_roman_numerals(
+        cls,
+        key: Key,
+        progression_string: str,
+        octave: int = 4,
+        duration: int = 480,
+        time_per_chord: int = 0
+    ):
+        m21_key = music21.key.Key(key.name, key.mode)
+        roman_numerals = progression_string.split('-')
+        chords = []
+        current_time = 0
+        for rn_str in roman_numerals:
+            rn = music21.roman.RomanNumeral(rn_str, m21_key)
+            pitches = rn.pitches
+            notes = []
+            for i, pitch in enumerate(pitches):
+                note_name = f"{pitch.nameWithOctave}"
+                # A simple way to handle octave, might need refinement
+                note_name_without_octave = ''.join(filter(str.isalpha, pitch.name))
+                full_note_name = f"{note_name_without_octave}{octave}"
+                midi_pitch = KEY_MAP.get(full_note_name)
+
+                # If the note is not in the current octave, try the next one
+                if midi_pitch is None:
+                    full_note_name = f"{note_name_without_octave}{octave + 1}"
+                    midi_pitch = KEY_MAP.get(full_note_name)
+
+                if midi_pitch:
+                    # The first note of the chord starts at `current_time`, subsequent notes start at the same time.
+                    note_time = current_time if i == 0 else 0
+                    notes.append(Note(pitch=midi_pitch, velocity=64, duration=duration, time=note_time))
+
+            if notes:
+                chords.append(Chord(notes))
+            current_time += time_per_chord
+
+        return cls(chords)
+
 
 class ArpeggioPattern(Enum):
     ASCENDING = "ascending"
     DESCENDING = "descending"
     ALTERNATING = "alternating"
 
-    
+
 class Arpeggio(Chord):
     def __init__(self, notes: List[Note], delay: int = 0, pattern: ArpeggioPattern = ArpeggioPattern.ASCENDING, loops: int = 1):
         """
@@ -135,10 +179,10 @@ class Arpeggio(Chord):
         self.delay = delay
         self.pattern = pattern
         self.loops = loops
-    
+
     def get_notes(self) -> List[Note]:
         return self.notes
-    
+
     def get_sequential_notes(self) -> List[Note]:
         """
         Get the sequential notes of the arpeggio based on the pattern, delay, and looping.
