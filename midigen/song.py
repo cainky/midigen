@@ -30,8 +30,14 @@ class Song:
         track = self.midigen.tracks[track_index]
         track.add_program_change(program=program)
         self.instruments[name] = track_index
+        
+        self.midigen.set_active_track(track_index)
+        track = self.midigen.get_active_track()
+        # The channel should ideally match the track index for clarity
+        track.add_program_change(channel=track_index, program=program)
+        self.instruments[name] = track_index
 
-    def generate(self, instrument_name: str, octave: int = 4):
+    def generate(self, instrument_name: str, octave: int = 4, duration: int = 480):
         if instrument_name not in self.instruments:
             raise ValueError(f"Instrument '{instrument_name}' has not been added to the song.")
 
@@ -42,7 +48,6 @@ class Song:
 
         for section in self.sections:
             chord_duration = 4 * TICKS_PER_BEAT
-
             progression = ChordProgression.from_roman_numerals(
                 key=self.key,
                 progression_string=section.chord_progression,
@@ -80,6 +85,13 @@ class Song:
                     if notes_for_chord:
                         track.add_chord(Chord(notes_for_chord))
                     current_time += chord_duration
+
+            for chord in progression.get_progression():
+                # Adjust chord's start time
+                for note in chord.get_chord():
+                    note.time += current_time
+                track.add_chord(chord)
+                current_time += duration
 
     def save(self, filename: str):
         self.midigen.save(filename)

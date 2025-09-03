@@ -1,3 +1,4 @@
+
 from midigen import Song, Section, Key, Rhythm, RHYTHM_LIBRARY
 
 # 1. Create a Song
