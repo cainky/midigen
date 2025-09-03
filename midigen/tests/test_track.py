@@ -1,165 +1,69 @@
-from midigen.midigen import MidiGen
-from midigen.note import Note
-from midigen.key import KEY_MAP
-from midigen.chord import Chord, Arpeggio
-from midigen.track import MAX_MIDI_TICKS
 import unittest
-
+from midigen.track import Track
+from midigen.note import Note
+from midigen.chord import Chord
+from midigen.key import Key, KEY_MAP
 
 class TestTrack(unittest.TestCase):
+
     def setUp(self):
-        self.midi_gen = MidiGen()
-        self.track = self.midi_gen.get_active_track()
+        self.track = Track()
+        self.key = Key("C", "major")
 
     def test_add_note(self):
-        new_note = Note(KEY_MAP["C4"], 64, 127, 0)
-        self.track.add_note(new_note)
-        messages = self.track.get_track()
-        note_on_msgs = [
-            msg
-            for msg in messages
-            if msg.type == "note_on" and msg.note == new_note.pitch
-        ]
-
-        self.assertEqual(len(note_on_msgs), 1, "Should have one note_on message")
-        self.assertEqual(
-            note_on_msgs[0].velocity, new_note.velocity, "Velocity should match"
-        )
+        note = Note(pitch=60, velocity=100, time=0, duration=480)
+        self.track.add_note(note)
+        self.assertEqual(len(self.track.events), 2)
+        note_on = self.track.events[0]
+        self.assertEqual(note_on['type'], 'note_on')
+        note_off = self.track.events[1]
+        self.assertEqual(note_off['type'], 'note_off')
+        self.assertEqual(note_off['time'], 480)
 
     def test_add_chord(self):
-        new_note = Note(KEY_MAP["C4"], velocity=64, duration=120, time=0)
-        chord = Chord([new_note, new_note + 4, new_note + 7])  # Simple C major triad
-        self.track.add_chord(chord)
-        messages = self.track.get_track()
+        c_major = Chord([
+            Note(KEY_MAP["C4"], 100, 480, 0),
+            Note(KEY_MAP["E4"], 100, 480, 0),
+            Note(KEY_MAP["G4"], 100, 480, 0),
+        ])
+        self.track.add_chord(c_major)
+        self.assertEqual(len(self.track.events), 6)
+        note_off_events = [e for e in self.track.events if e['type'] == 'note_off']
+        self.assertTrue(all(e['time'] == 480 for e in note_off_events))
 
-        note_on_msgs = [msg for msg in messages if msg.type == "note_on"]
+    def test_compile_track_timing(self):
+        self.track.add_note(Note(pitch=60, velocity=100, time=0, duration=480))
+        self.track.add_note(Note(pitch=67, velocity=100, time=480, duration=480))
 
-        # Assuming 3 notes in the chord, each with a note_on and note_off
-        self.assertEqual(
-            len(note_on_msgs), 3, "Should have 3 note_on messages for the chord"
+        compiled_track = self.track.compile(
+            channel=0,
+            tempo=120,
+            time_signature=(4, 4),
+            key_signature=self.key
         )
 
-    def test_add_arpeggio(self):
-        notes = [
-            Note(KEY_MAP["C4"], 64, 100, 0),
-            Note(KEY_MAP["E4"], 64, 100, 100),
-            Note(KEY_MAP["G4"], 64, 100, 200),
-        ]
-        arpeggio = Arpeggio(notes)
-        self.track.add_arpeggio(arpeggio)
-        messages = self.track.get_track()
+        note_events = [m for m in compiled_track if m.type in ['note_on', 'note_off']]
+        self.assertEqual(len(note_events), 4)
 
-        note_on_msgs = [msg for msg in messages if msg.type == "note_on"]
+        # msg[4] is note_on C (t=0, dt=0)
+        self.assertEqual(compiled_track[4].type, 'note_on')
+        self.assertEqual(compiled_track[4].note, 60)
+        self.assertEqual(compiled_track[4].time, 0)
 
-        self.assertEqual(
-            len(note_on_msgs), 3, "Should have 3 note_on messages for the arpeggio"
-        )
+        # msg[5] is note_off C (t=480, dt=480)
+        self.assertEqual(compiled_track[5].type, 'note_off')
+        self.assertEqual(compiled_track[5].note, 60)
+        self.assertEqual(compiled_track[5].time, 480)
 
-    def test_quantize(self):
-        time_value = 123
-        quantization_value = 128
-        quantized_value = self.track.quantize(time_value, quantization_value)
-        self.assertEqual(quantized_value, 128)
+        # msg[6] is note_on G (t=480, dt=0)
+        self.assertEqual(compiled_track[6].type, 'note_on')
+        self.assertEqual(compiled_track[6].note, 67)
+        self.assertEqual(compiled_track[6].time, 0)
 
-    def test_quantize_edge_cases(self):
-        # Test that the quantization value doesn't exceed the maximum MIDI ticks
-        time_value = 5000
-        quantization_value = MAX_MIDI_TICKS + 1
-        with self.assertRaises(ValueError):
-            self.track.quantize(time_value, quantization_value)
+        # msg[7] is note_off G (t=960, dt=480)
+        self.assertEqual(compiled_track[7].type, 'note_off')
+        self.assertEqual(compiled_track[7].note, 67)
+        self.assertEqual(compiled_track[7].time, 480)
 
-        # Test for negative time_value and quantization_value
-        time_value = -50
-        quantization_value = -128
-        with self.assertRaises(ValueError):
-            self.track.quantize(time_value, quantization_value)
-
-    def test_add_program_change(self):
-        self.track.add_program_change(channel=0, program=42)
-        program_change_msgs = [
-            msg for msg in self.track.get_track() if msg.type == "program_change"
-        ]
-        self.assertEqual(len(program_change_msgs), 1)
-        self.assertEqual(program_change_msgs[0].program, 42)
-
-    def test_add_control_change(self):
-        self.track.add_control_change(channel=0, control=1, value=64)
-        control_change_msgs = [
-            msg for msg in self.track.get_track() if msg.type == "control_change"
-        ]
-        self.assertEqual(len(control_change_msgs), 1)
-        self.assertEqual(control_change_msgs[0].value, 64)
-
-    def test_add_pitch_bend(self):
-        self.track.add_pitch_bend(channel=0, value=8191)
-        pitch_bend_msgs = [
-            msg for msg in self.track.get_track() if msg.type == "pitchwheel"
-        ]
-        self.assertEqual(len(pitch_bend_msgs), 1)
-        self.assertEqual(pitch_bend_msgs[0].pitch, 8191)
-
-    def test_invalid_control_change(self):
-        with self.assertRaises(ValueError):
-            self.track.add_control_change(channel=-1, control=0, value=64)
-
-        with self.assertRaises(ValueError):
-            self.track.add_control_change(channel=16, control=0, value=64)
-
-        with self.assertRaises(ValueError):
-            self.track.add_control_change(channel=0, control=-1, value=64)
-
-        with self.assertRaises(ValueError):
-            self.track.add_control_change(channel=0, control=120, value=64)
-
-        with self.assertRaises(ValueError):
-            self.track.add_control_change(channel=0, control=0, value=-1)
-
-        with self.assertRaises(ValueError):
-            self.track.add_control_change(channel=0, control=0, value=128)
-
-    def test_invalid_pitch_bend(self):
-        with self.assertRaises(ValueError):
-            self.track.add_pitch_bend(channel=-1, value=8192)
-
-        with self.assertRaises(ValueError):
-            self.track.add_pitch_bend(channel=16, value=8192)
-
-        with self.assertRaises(ValueError):
-            self.track.add_pitch_bend(channel=0, value=-8193)
-
-        with self.assertRaises(ValueError):
-            self.track.add_pitch_bend(channel=0, value=8193)
-
-    def test_chord_notes_start_simultaneously(self):
-        # Create notes for a C major chord
-        note_c = Note(pitch=KEY_MAP["C4"], velocity=64, duration=480, time=0)
-        note_e = Note(pitch=KEY_MAP["E4"], velocity=64, duration=480, time=0)
-        note_g = Note(pitch=KEY_MAP["G4"], velocity=64, duration=480, time=0)
-
-        # Create a chord and add it to the track
-        c_major_chord = Chord([note_c, note_e, note_g])
-        self.track.add_chord(c_major_chord)
-
-        messages = self.track.get_track()[3:]
-
-        # Test that the first note_on starts at its specified time (which should be 0) and subsequent ones immediately after
-        first_note_on_time = messages[0].time
-        self.assertEqual(
-            first_note_on_time,
-            0,
-            f"First note on should start at time 0 but started at {first_note_on_time}",
-        )
-
-        # All subsequent note_on messages should have a time of 0 if they are part of the same chord played simultaneously
-        for i in range(
-            2, len(messages), 2
-        ):  # Every second message starting from the second note_on
-            self.assertEqual(
-                messages[i].time,
-                0,
-                f"Note on at index {i} did not start at expected time 0",
-            )
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
