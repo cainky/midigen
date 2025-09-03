@@ -1,9 +1,7 @@
 from typing import List
 from midigen.note import Note
-from midigen.key import KEY_MAP, Key
+from midigen.key import KEY_MAP
 from enum import Enum
-import music21
-
 
 class Chord:
     def __init__(self, notes: List[Note]):
@@ -22,7 +20,7 @@ class Chord:
         Returns:
             The start time of the chord.
         """
-        self.time = min(note.time for note in self.notes) if self.notes else 0
+        self.time = min(note.time for note in self.notes)
         return self.time
 
     def _calculate_duration(self) -> int:
@@ -53,10 +51,8 @@ class Chord:
         return self.notes
 
     def get_root(self) -> Note:
-        if self.notes:
-            self.root = self.notes[0]
-            return self.root
-        return None
+        self.root = self.notes[0]
+        return self.root
 
     def major_triad(self) -> List[Note]:
         return [self.root, self.root + 4, self.root + 7]
@@ -106,7 +102,7 @@ class ChordProgression:
         return self.duration
 
     def _calculate_start_time(self) -> int:
-        self.time = min(chord._calculate_start_time() for chord in self.chords) if self.chords else 0
+        self.time = min(chord._calculate_start_time() for chord in self.chords)
         return self.time
 
     def __eq__(self, other) -> bool:
@@ -121,46 +117,6 @@ class ChordProgression:
         self.chords.append(chord)
         self._calculate_duration()
         self._calculate_start_time()
-
-    @classmethod
-    def from_roman_numerals(
-        cls,
-        key: Key,
-        progression_string: str,
-        octave: int = 4,
-        duration: int = 480,
-        time_per_chord: int = 0
-    ):
-        m21_key = music21.key.Key(key.name, key.mode)
-        roman_numerals = progression_string.split('-')
-        chords = []
-        current_time = 0
-        for rn_str in roman_numerals:
-            rn = music21.roman.RomanNumeral(rn_str, m21_key)
-            pitches = rn.pitches
-            notes = []
-            for i, pitch in enumerate(pitches):
-                note_name = f"{pitch.nameWithOctave}"
-                # A simple way to handle octave, might need refinement
-                note_name_without_octave = ''.join(filter(str.isalpha, pitch.name))
-                full_note_name = f"{note_name_without_octave}{octave}"
-                midi_pitch = KEY_MAP.get(full_note_name)
-
-                # If the note is not in the current octave, try the next one
-                if midi_pitch is None:
-                    full_note_name = f"{note_name_without_octave}{octave + 1}"
-                    midi_pitch = KEY_MAP.get(full_note_name)
-
-                if midi_pitch:
-                    # The first note of the chord starts at `current_time`, subsequent notes start at the same time.
-                    note_time = current_time if i == 0 else 0
-                    notes.append(Note(pitch=midi_pitch, velocity=64, duration=duration, time=note_time))
-
-            if notes:
-                chords.append(Chord(notes))
-            current_time += time_per_chord
-
-        return cls(chords)
 
 
 class ArpeggioPattern(Enum):

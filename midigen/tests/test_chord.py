@@ -212,57 +212,29 @@ class TestArpeggio(unittest.TestCase):
         ]
         self.assertEqual(sequential_notes, expected_notes)
 
-
-from midigen.key import Key
-
-class TestChordProgressionFromRomanNumerals(unittest.TestCase):
-
-    def test_from_roman_numerals_major(self):
-        key = Key("C", "major")
-        progression = ChordProgression.from_roman_numerals(
-            key=key,
-            progression_string="I-V-vi-IV",
-            octave=4,
-            duration=480,
-            time_per_chord=480
+    def test_get_sequential_notes_descending(self):
+        arpeggio = Arpeggio(
+            self.notes, delay=100, pattern=ArpeggioPattern.DESCENDING, loops=1
         )
-        self.assertEqual(len(progression.chords), 4)
+        sequential_notes = arpeggio.get_sequential_notes()
+        expected_notes = [
+            Note(KEY_MAP["E4"], 64, 100, 0),
+            Note(KEY_MAP["D4"], 64, 100, 100),
+            Note(KEY_MAP["C4"], 64, 100, 200),
+        ]
+        self.assertEqual(sequential_notes, expected_notes)
 
-        # Check root notes (C, G, A, F)
-        root_pitches = [chord.get_root().pitch for chord in progression.chords]
-        expected_pitches = [KEY_MAP["C4"], KEY_MAP["G4"], KEY_MAP["A4"], KEY_MAP["F4"]]
-        self.assertEqual(root_pitches, expected_pitches)
-
-    def test_from_roman_numerals_minor(self):
-        key = Key("A", "minor")
-        progression = ChordProgression.from_roman_numerals(
-            key=key,
-            progression_string="i-iv-v",
-            octave=4,
-            duration=480,
-            time_per_chord=480
+    def test_get_sequential_notes_alternating(self):
+        arpeggio = Arpeggio(
+            self.notes, delay=100, pattern=ArpeggioPattern.ALTERNATING, loops=2
         )
-        self.assertEqual(len(progression.chords), 3)
-
-        # Check root notes (A, D, E)
-        root_pitches = [chord.get_root().pitch for chord in progression.chords]
-        expected_pitches = [KEY_MAP["A4"], KEY_MAP["D4"], KEY_MAP["E4"]]
-        self.assertEqual(root_pitches, expected_pitches)
-
-    def test_chord_timing(self):
-        key = Key("C", "major")
-        progression = ChordProgression.from_roman_numerals(
-            key=key,
-            progression_string="I-V",
-            octave=4,
-            duration=480,
-            time_per_chord=480
-        )
-
-        chord1_time = progression.chords[0].time
-        chord2_time = progression.chords[1].time
-
-        self.assertEqual(chord1_time, 0)
-        # This is tricky because the time is distributed among the notes.
-        # The first note of the second chord should have the time of the first chord's duration.
-        self.assertEqual(progression.chords[1].notes[0].time, 480)
+        sequential_notes = arpeggio.get_sequential_notes()
+        expected_notes = [
+            Note(KEY_MAP["C4"], 64, 100, 0),
+            Note(KEY_MAP["D4"], 64, 100, 100),
+            Note(KEY_MAP["E4"], 64, 100, 200),
+            Note(KEY_MAP["E4"], 64, 100, 300),
+            Note(KEY_MAP["D4"], 64, 100, 400),
+            Note(KEY_MAP["C4"], 64, 100, 500),
+        ]
+        self.assertEqual(sequential_notes, expected_notes)
