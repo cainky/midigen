@@ -41,8 +41,6 @@ class Song:
         TICKS_PER_BEAT = 480  # Standard ticks per beat
 
         for section in self.sections:
-            # Assuming each chord in the progression lasts for 4 beats (a whole note)
-            # unless a rhythm specifies otherwise.
             chord_duration = 4 * TICKS_PER_BEAT
 
             progression = ChordProgression.from_roman_numerals(
@@ -50,13 +48,12 @@ class Song:
                 progression_string=section.chord_progression,
                 octave=octave,
                 duration=chord_duration,
-                time_per_chord=0 # time is handled by current_time
+                time_per_chord=0
             )
 
             if section.rhythm:
                 for chord in progression.get_progression():
                     rhythm_events = section.rhythm.get_events()
-                    # Apply the rhythm over the duration of one chord
                     for is_on, event_duration in rhythm_events:
                         if is_on:
                             rhythmic_notes = []
@@ -71,7 +68,6 @@ class Song:
                                 track.add_chord(Chord(rhythmic_notes))
                         current_time += event_duration
             else:
-                # Corrected non-rhythmic logic
                 for chord in progression.get_progression():
                     notes_for_chord = []
                     for base_note in chord.get_chord():
