@@ -1,5 +1,5 @@
 from midigen.note import Note
-from midigen.key import KEY_MAP
+from midigen.key import KEY_MAP, Key
 from midigen.chord import Chord, ChordProgression, Arpeggio, ArpeggioPattern
 import unittest
 
@@ -238,3 +238,56 @@ class TestArpeggio(unittest.TestCase):
             Note(KEY_MAP["C4"], 64, 100, 500),
         ]
         self.assertEqual(sequential_notes, expected_notes)
+
+
+class TestChordProgressionFromRomanNumerals(unittest.TestCase):
+
+    def test_from_roman_numerals_major(self):
+        key = Key("C", "major")
+        progression = ChordProgression.from_roman_numerals(
+            key=key,
+            progression_string="I-V-vi-IV",
+            octave=4,
+            duration=480,
+            time_per_chord=480
+        )
+        self.assertEqual(len(progression.chords), 4)
+
+        # Check root notes (C, G, A, F)
+        root_pitches = [chord.get_root().pitch for chord in progression.chords]
+        expected_pitches = [KEY_MAP["C4"], KEY_MAP["G4"], KEY_MAP["A4"], KEY_MAP["F4"]]
+        self.assertEqual(root_pitches, expected_pitches)
+
+    def test_from_roman_numerals_minor(self):
+        key = Key("A", "minor")
+        progression = ChordProgression.from_roman_numerals(
+            key=key,
+            progression_string="i-iv-v",
+            octave=4,
+            duration=480,
+            time_per_chord=480
+        )
+        self.assertEqual(len(progression.chords), 3)
+
+        # Check root notes (A, D, E)
+        root_pitches = [chord.get_root().pitch for chord in progression.chords]
+        expected_pitches = [KEY_MAP["A4"], KEY_MAP["D4"], KEY_MAP["E4"]]
+        self.assertEqual(root_pitches, expected_pitches)
+
+    def test_chord_timing(self):
+        key = Key("C", "major")
+        progression = ChordProgression.from_roman_numerals(
+            key=key,
+            progression_string="I-V",
+            octave=4,
+            duration=480,
+            time_per_chord=480
+        )
+
+        chord1_time = progression.chords[0].time
+        chord2_time = progression.chords[1].time
+
+        self.assertEqual(chord1_time, 0)
+        # This is tricky because the time is distributed among the notes.
+        # The first note of the second chord should have the time of the first chord's duration.
+        self.assertEqual(progression.chords[1].notes[0].time, 480)

@@ -90,7 +90,6 @@ class Track:
         :param value: The pitch bend value.
         :param time: Optional, the time to schedule the pitch bend. Default is 0.
         """
-
         if not isinstance(channel, int) or not 0 <= channel <= 15:
             raise ValueError("Invalid channel value: channel must be an integer between 0 and 15")
         if not isinstance(value, int) or value < -8192 or value > 8191:
@@ -173,7 +172,6 @@ class Track:
         for drum in drum_kit.get_drums():
             self.add_note(drum)
 
-
     def quantize(self, time_value: int, quantization_value: int) -> int:
         """
         Quantize a time value to the nearest multiple of the quantization value.
@@ -190,7 +188,6 @@ class Track:
             raise ValueError(f"Quantization value must not exceed maximum MIDI ticks: {MAX_MIDI_TICKS}")
         
         return round(time_value / quantization_value) * quantization_value
-
 
     def set_tempo(self, tempo: int) -> None:
         if not isinstance(tempo, int) or tempo <= 0:
