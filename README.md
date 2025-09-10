@@ -1,6 +1,6 @@
 # MidiGen: Your Intuitive MIDI Music Generation Library
 
-[![PyPI version](https://badge.fury.io/py/midigen.svg)](https://badge.fury.io/py/midigen)
+[![PyPI version](https://badge.fury.io/py/midigen-lib.svg)](https://badge.fury.io/py/midigen-lib)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/cainky/midigen/issues)
 
