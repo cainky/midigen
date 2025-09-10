@@ -23,7 +23,7 @@ Built on top of the robust `mido` library, MidiGen offers a high-level, object-o
 First, ensure you have Python 3.7+ installed. Then, you can install MidiGen using pip:
 
 ```bash
-pip install midigen
+pip install midigen-lib
 ```
 
 Alternatively, for development, clone the repository and install with [Poetry](https://python-poetry.org/):

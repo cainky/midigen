@@ -1,9 +1,13 @@
 [tool.poetry]
-name = "midigen"
+name = "midigen-lib"   # distribution name on PyPI
+packages = [{ include = "midigen" }]
 version = "0.1.0"
-description = ""
+description = "High-level, theory-powered MIDI generation library"
 authors = ["cainky <kylecain.me@gmail.com>"]
 readme = "README.md"
+license = "GPL-3.0-only"
+repository = "https://github.com/cainky/midigen"
+keywords = ["midi", "music-generation", "mido", "music21"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
