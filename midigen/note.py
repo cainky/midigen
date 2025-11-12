@@ -22,8 +22,9 @@ class Note:
     def _validate_note(self) -> bool:
         validate_attributes = ["pitch", "velocity"]
         for attribute, value in self.__dict__.items():
-            if not 0 <= value <= 127 and not isinstance(attribute, int) and attribute in validate_attributes:
-               raise ValueError(f"Invalid {attribute}, must be an integer between 0 and 127.")
+            if attribute in validate_attributes:
+                if not isinstance(value, int) or not 0 <= value <= 127:
+                    raise ValueError(f"Invalid {attribute}, must be an integer between 0 and 127.")
 
     def __str__(self):
         return f"Note(pitch={self.pitch}, velocity={self.velocity}, duration={self.duration}, time={self.time})"
