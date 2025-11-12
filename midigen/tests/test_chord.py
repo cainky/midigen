@@ -212,6 +212,47 @@ class TestArpeggio(unittest.TestCase):
         ]
         self.assertEqual(sequential_notes, expected_notes)
 
+    def test_get_sequential_notes_descending(self):
+        arpeggio = Arpeggio(
+            self.notes, delay=100, pattern=ArpeggioPattern.DESCENDING, loops=1
+        )
+        sequential_notes = arpeggio.get_sequential_notes()
+        expected_notes = [
+            Note(KEY_MAP["E4"], 64, 100, 0),
+            Note(KEY_MAP["D4"], 64, 100, 100),
+            Note(KEY_MAP["C4"], 64, 100, 200),
+        ]
+        self.assertEqual(sequential_notes, expected_notes)
+
+    def test_get_sequential_notes_alternating(self):
+        arpeggio = Arpeggio(
+            self.notes, delay=100, pattern=ArpeggioPattern.ALTERNATING, loops=2
+        )
+        sequential_notes = arpeggio.get_sequential_notes()
+        expected_notes = [
+            # First loop - ascending
+            Note(KEY_MAP["C4"], 64, 100, 0),
+            Note(KEY_MAP["D4"], 64, 100, 100),
+            Note(KEY_MAP["E4"], 64, 100, 200),
+            # Second loop - descending
+            Note(KEY_MAP["E4"], 64, 100, 300),
+            Note(KEY_MAP["D4"], 64, 100, 400),
+            Note(KEY_MAP["C4"], 64, 100, 500),
+        ]
+        self.assertEqual(sequential_notes, expected_notes)
+
+    def test_arpeggio_multiple_loops(self):
+        arpeggio = Arpeggio(
+            self.notes, delay=50, pattern=ArpeggioPattern.ASCENDING, loops=3
+        )
+        sequential_notes = arpeggio.get_sequential_notes()
+        # Should have 9 notes total (3 notes x 3 loops)
+        self.assertEqual(len(sequential_notes), 9)
+        # Verify timing of first note in each loop
+        self.assertEqual(sequential_notes[0].time, 0)      # Loop 1
+        self.assertEqual(sequential_notes[3].time, 150)    # Loop 2
+        self.assertEqual(sequential_notes[6].time, 300)    # Loop 3
+
 
 from midigen.key import Key
 
