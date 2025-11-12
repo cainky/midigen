@@ -195,3 +195,72 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(len(min9.notes), 5)
         self.assertEqual(len(maj9.notes), 5)
         self.assertEqual(len(dom9.notes), 5)
+
+    def test_extended_chord_types(self):
+        """Test extended chord types (sus, aug, 6th, 11th, 13th, add)"""
+        root = Note(pitch=60, velocity=64, duration=480, time=0)
+
+        # Suspended chords
+        sus2 = Chord.create_sus2(root)
+        sus4 = Chord.create_sus4(root)
+        self.assertIsInstance(sus2, Chord)
+        self.assertIsInstance(sus4, Chord)
+        self.assertEqual(len(sus2.notes), 3)
+        self.assertEqual(len(sus4.notes), 3)
+
+        # Augmented and diminished
+        aug = Chord.create_augmented(root)
+        dim = Chord.create_diminished(root)
+        self.assertIsInstance(aug, Chord)
+        self.assertIsInstance(dim, Chord)
+        self.assertEqual(len(aug.notes), 3)
+        self.assertEqual(len(dim.notes), 3)
+
+        # 6th chords
+        maj6 = Chord.create_major_sixth(root)
+        min6 = Chord.create_minor_sixth(root)
+        self.assertIsInstance(maj6, Chord)
+        self.assertIsInstance(min6, Chord)
+        self.assertEqual(len(maj6.notes), 4)
+        self.assertEqual(len(min6.notes), 4)
+
+        # 11th chords
+        dom11 = Chord.create_dominant_eleventh(root)
+        maj11 = Chord.create_major_eleventh(root)
+        min11 = Chord.create_minor_eleventh(root)
+        self.assertIsInstance(dom11, Chord)
+        self.assertIsInstance(maj11, Chord)
+        self.assertIsInstance(min11, Chord)
+        self.assertEqual(len(dom11.notes), 6)
+        self.assertEqual(len(maj11.notes), 6)
+        self.assertEqual(len(min11.notes), 6)
+
+        # 13th chords
+        dom13 = Chord.create_dominant_thirteenth(root)
+        maj13 = Chord.create_major_thirteenth(root)
+        min13 = Chord.create_minor_thirteenth(root)
+        self.assertIsInstance(dom13, Chord)
+        self.assertIsInstance(maj13, Chord)
+        self.assertIsInstance(min13, Chord)
+        self.assertEqual(len(dom13.notes), 7)
+        self.assertEqual(len(maj13.notes), 7)
+        self.assertEqual(len(min13.notes), 7)
+
+        # Add chords
+        add9 = Chord.create_add9(root)
+        minor_add9 = Chord.create_minor_add9(root)
+        add11 = Chord.create_add11(root)
+        self.assertIsInstance(add9, Chord)
+        self.assertIsInstance(minor_add9, Chord)
+        self.assertIsInstance(add11, Chord)
+        self.assertEqual(len(add9.notes), 4)
+        self.assertEqual(len(minor_add9.notes), 4)
+        self.assertEqual(len(add11.notes), 4)
+
+        # Augmented 7th chords
+        aug7 = Chord.create_augmented_seventh(root)
+        aug_maj7 = Chord.create_augmented_major_seventh(root)
+        self.assertIsInstance(aug7, Chord)
+        self.assertIsInstance(aug_maj7, Chord)
+        self.assertEqual(len(aug7.notes), 4)
+        self.assertEqual(len(aug_maj7.notes), 4)

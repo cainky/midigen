@@ -148,6 +148,122 @@ class Chord:
         notes = [root, root + 4, root + 7, root + 10, root + 14]
         return cls(notes)
 
+    # ===== Suspended Chords =====
+
+    @classmethod
+    def create_sus2(cls, root: Note) -> 'Chord':
+        """Create a suspended 2nd chord from a root note (root, 2nd, 5th)."""
+        notes = [root, root + 2, root + 7]
+        return cls(notes)
+
+    @classmethod
+    def create_sus4(cls, root: Note) -> 'Chord':
+        """Create a suspended 4th chord from a root note (root, 4th, 5th)."""
+        notes = [root, root + 5, root + 7]
+        return cls(notes)
+
+    # ===== Augmented and Diminished Triads =====
+
+    @classmethod
+    def create_augmented(cls, root: Note) -> 'Chord':
+        """Create an augmented triad from a root note (root, major 3rd, augmented 5th)."""
+        notes = [root, root + 4, root + 8]
+        return cls(notes)
+
+    @classmethod
+    def create_diminished(cls, root: Note) -> 'Chord':
+        """Create a diminished triad from a root note (root, minor 3rd, diminished 5th)."""
+        notes = [root, root + 3, root + 6]
+        return cls(notes)
+
+    # ===== 6th Chords =====
+
+    @classmethod
+    def create_major_sixth(cls, root: Note) -> 'Chord':
+        """Create a major 6th chord from a root note (major triad + 6th)."""
+        notes = [root, root + 4, root + 7, root + 9]
+        return cls(notes)
+
+    @classmethod
+    def create_minor_sixth(cls, root: Note) -> 'Chord':
+        """Create a minor 6th chord from a root note (minor triad + 6th)."""
+        notes = [root, root + 3, root + 7, root + 9]
+        return cls(notes)
+
+    # ===== 11th Chords =====
+
+    @classmethod
+    def create_dominant_eleventh(cls, root: Note) -> 'Chord':
+        """Create a dominant 11th chord from a root note."""
+        notes = [root, root + 4, root + 7, root + 10, root + 14, root + 17]
+        return cls(notes)
+
+    @classmethod
+    def create_major_eleventh(cls, root: Note) -> 'Chord':
+        """Create a major 11th chord from a root note."""
+        notes = [root, root + 4, root + 7, root + 11, root + 14, root + 17]
+        return cls(notes)
+
+    @classmethod
+    def create_minor_eleventh(cls, root: Note) -> 'Chord':
+        """Create a minor 11th chord from a root note."""
+        notes = [root, root + 3, root + 7, root + 10, root + 14, root + 17]
+        return cls(notes)
+
+    # ===== 13th Chords =====
+
+    @classmethod
+    def create_dominant_thirteenth(cls, root: Note) -> 'Chord':
+        """Create a dominant 13th chord from a root note."""
+        notes = [root, root + 4, root + 7, root + 10, root + 14, root + 17, root + 21]
+        return cls(notes)
+
+    @classmethod
+    def create_major_thirteenth(cls, root: Note) -> 'Chord':
+        """Create a major 13th chord from a root note."""
+        notes = [root, root + 4, root + 7, root + 11, root + 14, root + 17, root + 21]
+        return cls(notes)
+
+    @classmethod
+    def create_minor_thirteenth(cls, root: Note) -> 'Chord':
+        """Create a minor 13th chord from a root note."""
+        notes = [root, root + 3, root + 7, root + 10, root + 14, root + 17, root + 21]
+        return cls(notes)
+
+    # ===== Add Chords =====
+
+    @classmethod
+    def create_add9(cls, root: Note) -> 'Chord':
+        """Create an add9 chord from a root note (major triad + 9th, no 7th)."""
+        notes = [root, root + 4, root + 7, root + 14]
+        return cls(notes)
+
+    @classmethod
+    def create_minor_add9(cls, root: Note) -> 'Chord':
+        """Create a minor add9 chord from a root note (minor triad + 9th, no 7th)."""
+        notes = [root, root + 3, root + 7, root + 14]
+        return cls(notes)
+
+    @classmethod
+    def create_add11(cls, root: Note) -> 'Chord':
+        """Create an add11 chord from a root note (major triad + 11th, no 7th or 9th)."""
+        notes = [root, root + 4, root + 7, root + 17]
+        return cls(notes)
+
+    # ===== Augmented 7th Chords =====
+
+    @classmethod
+    def create_augmented_seventh(cls, root: Note) -> 'Chord':
+        """Create an augmented 7th chord from a root note (augmented triad + minor 7th)."""
+        notes = [root, root + 4, root + 8, root + 10]
+        return cls(notes)
+
+    @classmethod
+    def create_augmented_major_seventh(cls, root: Note) -> 'Chord':
+        """Create an augmented major 7th chord from a root note (augmented triad + major 7th)."""
+        notes = [root, root + 4, root + 8, root + 11]
+        return cls(notes)
+
 
 class ChordProgression:
     def __init__(self, chords: List[Chord]):
