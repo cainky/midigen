@@ -88,6 +88,66 @@ class Chord:
     def dominant_ninth(self) -> List[Note]:
         return self.dominant_seventh() + [self.root + 14]
 
+    @classmethod
+    def create_major_triad(cls, root: Note) -> 'Chord':
+        """Create a major triad chord from a root note."""
+        notes = [root, root + 4, root + 7]
+        return cls(notes)
+
+    @classmethod
+    def create_minor_triad(cls, root: Note) -> 'Chord':
+        """Create a minor triad chord from a root note."""
+        notes = [root, root + 3, root + 7]
+        return cls(notes)
+
+    @classmethod
+    def create_dominant_seventh(cls, root: Note) -> 'Chord':
+        """Create a dominant seventh chord from a root note."""
+        notes = [root, root + 4, root + 7, root + 10]
+        return cls(notes)
+
+    @classmethod
+    def create_major_seventh(cls, root: Note) -> 'Chord':
+        """Create a major seventh chord from a root note."""
+        notes = [root, root + 4, root + 7, root + 11]
+        return cls(notes)
+
+    @classmethod
+    def create_minor_seventh(cls, root: Note) -> 'Chord':
+        """Create a minor seventh chord from a root note."""
+        notes = [root, root + 3, root + 7, root + 10]
+        return cls(notes)
+
+    @classmethod
+    def create_half_diminished_seventh(cls, root: Note) -> 'Chord':
+        """Create a half-diminished seventh chord from a root note."""
+        notes = [root, root + 3, root + 6, root + 10]
+        return cls(notes)
+
+    @classmethod
+    def create_diminished_seventh(cls, root: Note) -> 'Chord':
+        """Create a diminished seventh chord from a root note."""
+        notes = [root, root + 3, root + 6, root + 9]
+        return cls(notes)
+
+    @classmethod
+    def create_minor_ninth(cls, root: Note) -> 'Chord':
+        """Create a minor ninth chord from a root note."""
+        notes = [root, root + 3, root + 7, root + 10, root + 14]
+        return cls(notes)
+
+    @classmethod
+    def create_major_ninth(cls, root: Note) -> 'Chord':
+        """Create a major ninth chord from a root note."""
+        notes = [root, root + 4, root + 7, root + 11, root + 14]
+        return cls(notes)
+
+    @classmethod
+    def create_dominant_ninth(cls, root: Note) -> 'Chord':
+        """Create a dominant ninth chord from a root note."""
+        notes = [root, root + 4, root + 7, root + 10, root + 14]
+        return cls(notes)
+
 
 class ChordProgression:
     def __init__(self, chords: List[Chord]):
@@ -152,9 +212,8 @@ class ChordProgression:
                     midi_pitch = KEY_MAP.get(full_note_name)
 
                 if midi_pitch:
-                    # The first note of the chord starts at `current_time`, subsequent notes start at the same time.
-                    note_time = current_time if i == 0 else 0
-                    notes.append(Note(pitch=midi_pitch, velocity=64, duration=duration, time=note_time))
+                    # All notes in the chord start at the same time (current_time)
+                    notes.append(Note(pitch=midi_pitch, velocity=64, duration=duration, time=current_time))
 
             if notes:
                 chords.append(Chord(notes))
