@@ -8,3 +8,4 @@ from .drums import DrumKit, Drum
 from .song import Song
 from .section import Section
 from .instruments import INSTRUMENT_MAP
+from .time_utils import TimeConverter
