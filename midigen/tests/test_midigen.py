@@ -75,12 +75,13 @@ class TestMidigen(unittest.TestCase):
         self.note = Note(pitch=60, velocity=64, duration=480, time=0)
         track = self.midi_gen.get_active_track()
         track.add_note(self.note)
-        # Save the MIDI file
-        filename = self.midi_gen.save(self.filename)
-        self.assertTrue(os.path.exists(self.filename), "MIDI file was not created.")
+        # Save the MIDI file with custom output directory
+        filepath = self.midi_gen.save("test.mid", output_dir=self.output_dir)
+        self.assertTrue(os.path.exists(filepath), "MIDI file was not created.")
+        self.assertEqual(filepath, self.filename)
 
         # Load the saved MIDI file to check the messages
-        midi_file = MidiFile(self.filename)
+        midi_file = MidiFile(filepath)
         note_on_found = False
         note_off_found = False
         note_on_time = None
@@ -109,7 +110,6 @@ class TestMidigen(unittest.TestCase):
                 self.note.duration,
                 "The duration of the note does not match the expected value.",
             )
-        os.remove(filename)
 
     def test_invalid_tempo(self):
         with self.assertRaises(ValueError):
@@ -142,6 +142,20 @@ class TestMidigen(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             active_track.add_program_change(channel=0, program=128)
+
+    def test_save_default_directory(self):
+        """Test save to current directory (default behavior)"""
+        self.note = Note(pitch=60, velocity=64, duration=480, time=0)
+        track = self.midi_gen.get_active_track()
+        track.add_note(self.note)
+
+        # Save without specifying output_dir (should save to current directory)
+        filepath = self.midi_gen.save("test_default.mid")
+        self.assertTrue(os.path.exists(filepath), "MIDI file was not created in current directory.")
+
+        # Cleanup
+        if os.path.exists(filepath):
+            os.remove(filepath)
 
     def test_save_error(self):
         with self.assertRaises(ValueError):

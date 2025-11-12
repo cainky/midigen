@@ -160,7 +160,7 @@ class MidiGen(MidiFile):
         key = Key(scale_degree, mode)
         self.set_key_signature(key)
 
-    def save(self, filename: str) -> None:
+    def save(self, filename: str, output_dir: str = None) -> str:
         """
         Compile all tracks and save the MIDI file to the specified path.
 
@@ -168,18 +168,33 @@ class MidiGen(MidiFile):
         and then saves the complete MIDI composition to the specified filename.
 
         Args:
-            filename (str): The path where the MIDI file should be saved.
+            filename (str): The name of the MIDI file (e.g., "my_song.mid")
+            output_dir (str, optional): Directory to save the file. If None, uses current directory.
+                                       Can be absolute or relative path.
+
+        Returns:
+            str: The full path to the saved file
+
+        Example:
+            >>> midi = MidiGen()
+            >>> midi.save("song.mid")  # Saves to current directory
+            >>> midi.save("song.mid", "output/music")  # Saves to output/music/
+            >>> midi.save("song.mid", "/absolute/path")  # Saves to absolute path
         """
         self.midi_file.tracks.clear()
         for track in self.tracks:
             track.add_note_off_messages()
             self.midi_file.tracks.append(track.get_track())
 
-        # output_dir = os.path.join(os.getcwd(), "generate", "output")
-        project_root = find_project_root()
-        output_dir = os.path.join(project_root, "generate", "output")
+        # Determine output directory
+        if output_dir is None:
+            # Use current working directory if not specified
+            output_dir = os.getcwd()
+
+        # Create directory if it doesn't exist
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)  # Recursively create directory if it does not exist
+
         filepath = os.path.join(output_dir, filename)
         try:
             self.midi_file.save(filename=filepath)

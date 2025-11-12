@@ -55,5 +55,15 @@ class Song:
                 track.add_chord(chord)
                 current_time += duration
 
-    def save(self, filename: str):
-        self.midigen.save(filename)
+    def save(self, filename: str, output_dir: str = None) -> str:
+        """
+        Save the song to a MIDI file.
+
+        Args:
+            filename (str): The name of the MIDI file (e.g., "my_song.mid")
+            output_dir (str, optional): Directory to save the file. If None, uses current directory.
+
+        Returns:
+            str: The full path to the saved file
+        """
+        return self.midigen.save(filename, output_dir)
