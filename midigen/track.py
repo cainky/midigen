@@ -128,13 +128,6 @@ class Track:
             note_off_msg = Message("note_off", note=note.pitch, velocity=note.velocity, time=(note.time+note.duration))
             self.track.append(note_off_msg)
 
-    def add_rest(self, duration: int, track: int = 0) -> None:
-        last_event = self.tracks[track][-1] if self.tracks[track] else None
-        if last_event and last_event.type == "note_off":
-            last_event.time += duration
-        else:
-            self.tracks[track].append(Message("note_off", note=0, velocity=0, time=duration))
-
     def add_chord(self, chord: Chord) -> None:
         """
         Add a chord (simultaneous notes) to the track.
