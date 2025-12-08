@@ -1,8 +1,8 @@
 from typing import List
 from midigen.note import Note
 from midigen.key import KEY_MAP, Key
+from midigen.roman import get_chord_pitches
 from enum import Enum
-import music21
 
 
 class Chord:
@@ -307,29 +307,35 @@ class ChordProgression:
         duration: int = 480,
         time_per_chord: int = 0
     ):
-        m21_key = music21.key.Key(key.name, key.mode)
+        """
+        Create a chord progression from Roman numeral notation.
+
+        Args:
+            key: The key for the progression (e.g., Key("C", "major"))
+            progression_string: Dash-separated Roman numerals (e.g., "I-V-vi-IV")
+            octave: Base octave for the chords (default 4)
+            duration: Duration of each note in ticks (default 480)
+            time_per_chord: Time between chord starts in ticks (default 0)
+
+        Returns:
+            ChordProgression containing the parsed chords.
+        """
         roman_numerals = progression_string.split('-')
         chords = []
         current_time = 0
+
         for rn_str in roman_numerals:
-            rn = music21.roman.RomanNumeral(rn_str, m21_key)
-            pitches = rn.pitches
+            # Use native parser to get MIDI pitches
+            pitches = get_chord_pitches(key.name, key.mode, rn_str, octave=octave)
+
             notes = []
-            for i, pitch in enumerate(pitches):
-                note_name = f"{pitch.nameWithOctave}"
-                # A simple way to handle octave, might need refinement
-                note_name_without_octave = ''.join(filter(str.isalpha, pitch.name))
-                full_note_name = f"{note_name_without_octave}{octave}"
-                midi_pitch = KEY_MAP.get(full_note_name)
-
-                # If the note is not in the current octave, try the next one
-                if midi_pitch is None:
-                    full_note_name = f"{note_name_without_octave}{octave + 1}"
-                    midi_pitch = KEY_MAP.get(full_note_name)
-
-                if midi_pitch:
-                    # All notes in the chord start at the same time (current_time)
-                    notes.append(Note(pitch=midi_pitch, velocity=64, duration=duration, time=current_time))
+            for midi_pitch in pitches:
+                notes.append(Note(
+                    pitch=midi_pitch,
+                    velocity=64,
+                    duration=duration,
+                    time=current_time
+                ))
 
             if notes:
                 chords.append(Chord(notes))

@@ -64,7 +64,9 @@ class TestIntegration(unittest.TestCase):
         self.assertEqual(len(drum_track.notes), 4)
 
     def test_song_class_with_multiple_sections_and_instruments(self):
-        """Test Song class with complex arrangement"""
+        """Test Song class with complex arrangement using MidiCompiler"""
+        from midigen.compiler import MidiCompiler
+
         song = Song(key=Key("D", "minor"), tempo=110)
 
         # Add sections
@@ -81,10 +83,9 @@ class TestIntegration(unittest.TestCase):
         song.add_instrument("String Ensemble 1")
         song.add_instrument("Synth Bass 1")
 
-        # Generate for all instruments
-        song.generate("Electric Piano 1")
-        song.generate("String Ensemble 1")
-        song.generate("Synth Bass 1")
+        # Compile with MidiCompiler
+        compiler = MidiCompiler(song)
+        compiler.compile()
 
         # Verify song structure
         self.assertEqual(len(song.sections), 3)
@@ -92,8 +93,8 @@ class TestIntegration(unittest.TestCase):
 
         # Verify each instrument has generated notes
         for instrument_name in song.instruments:
-            track_idx = song.instruments[instrument_name]
-            track = song.midigen.tracks[track_idx]
+            track = compiler.get_track(instrument_name)
+            self.assertIsNotNone(track)
             self.assertGreater(len(track.notes), 0)
 
     def test_overlapping_notes(self):

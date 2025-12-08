@@ -1,5 +1,6 @@
 from mido import MidiTrack, Message, MetaMessage, bpm2tempo
-from typing import List
+from typing import List, Tuple
+import warnings
 
 
 from midigen.chord import Chord, ChordProgression, Arpeggio
@@ -10,69 +11,162 @@ from midigen.drums import DrumKit
 
 MAX_MIDI_TICKS = 32767  # Maximum value for a 15-bit signed integer
 
+# Event ordering constants for stable sort at same tick
+# Note-on before note-off ensures zero-duration notes are handled correctly
+_EVENT_ORDER_NOTE_ON = 0
+_EVENT_ORDER_NOTE_OFF = 1
+
 
 class Track:
-    def __init__(self):
+    def __init__(self, channel: int = 0):
         """
         Initialize a new Track instance.
+
+        Args:
+            channel: MIDI channel for this track (0-15). Default is 0.
+                    Note: Channel 9 is reserved for drums in General MIDI.
         """
-        self.track = MidiTrack()
-        self.notes = []
+        if not isinstance(channel, int) or not 0 <= channel <= 15:
+            raise ValueError(f"Channel must be an integer between 0 and 15, got {channel}")
+
+        self._track = MidiTrack()  # Internal track for metadata
+        self._channel = channel
+        self.notes: List[Note] = []
     
     def __str__(self):
-        return f"Notes: {self.notes}"
-    
+        return f"Track(channel={self._channel}, notes={len(self.notes)})"
+
+    @property
+    def track(self) -> MidiTrack:
+        """Backward compatibility property. Prefer using compile() for output."""
+        return self._track
+
+    @property
+    def channel(self) -> int:
+        """The MIDI channel for this track."""
+        return self._channel
+
     def get_notes(self) -> List[Note]:
         return self.notes
 
-    def get_track(self):
-        return self.track
-    
-    def apply_global_settings(self, tempo, time_signature, key_signature):
-        self.track.append(MetaMessage('set_tempo', tempo=bpm2tempo(tempo)))
-        self.track.append(MetaMessage('time_signature', numerator=time_signature[0], denominator=time_signature[1]))
-        self.track.append(MetaMessage('key_signature', key=str(key_signature)))
-
-    def add_program_change(self, channel: int, program: int) -> None:
+    def get_track(self) -> MidiTrack:
         """
-        Add a program change to the MIDI file.
+        Get the raw internal track. For proper MIDI output, use compile() instead.
+
+        Returns:
+            The internal MidiTrack with metadata messages only.
+        """
+        return self._track
+
+    def apply_global_settings(self, tempo, time_signature, key_signature):
+        """Apply tempo, time signature, and key signature metadata to the track."""
+        self._track.append(MetaMessage('set_tempo', tempo=bpm2tempo(tempo)))
+        self._track.append(MetaMessage('time_signature', numerator=time_signature[0], denominator=time_signature[1]))
+        self._track.append(MetaMessage('key_signature', key=str(key_signature)))
+
+    def compile(self) -> MidiTrack:
+        """
+        Compile all notes into a properly formatted MIDI track with correct delta timing.
+
+        This method converts the stored notes into MIDI messages with proper delta times
+        (time since previous event) rather than absolute times. This is the correct
+        format for MIDI playback.
+
+        The compilation process:
+        1. Creates note_on and note_off events with absolute times
+        2. Sorts events by time, with note_on before note_off at the same tick
+           (ensures zero-duration notes are handled correctly)
+        3. Converts absolute times to delta times
+        4. Prepends metadata messages (tempo, time signature, key signature)
+
+        Returns:
+            A new MidiTrack with properly timed MIDI messages.
+        """
+        # Collect all note events with absolute times
+        # Format: (absolute_time, event_order, event_type, note)
+        events: List[Tuple[int, int, str, Note]] = []
+
+        for note in self.notes:
+            events.append((note.time, _EVENT_ORDER_NOTE_ON, 'note_on', note))
+            events.append((note.time + note.duration, _EVENT_ORDER_NOTE_OFF, 'note_off', note))
+
+        # Sort by absolute time, then by event order (note_on before note_off at same tick)
+        events.sort(key=lambda x: (x[0], x[1]))
+
+        # Create the compiled track starting with metadata
+        compiled = MidiTrack()
+
+        # Copy metadata messages from internal track (tempo, time sig, key sig, program change)
+        for msg in self._track:
+            compiled.append(msg.copy())
+
+        # Convert to delta times and append note messages
+        last_time = 0
+        for abs_time, _, event_type, note in events:
+            delta = abs_time - last_time
+
+            # Velocity 0 for note_off is standard practice (some synths prefer this)
+            velocity = note.velocity if event_type == 'note_on' else 0
+
+            compiled.append(Message(
+                event_type,
+                note=note.pitch,
+                velocity=velocity,
+                channel=self._channel,
+                time=delta
+            ))
+            last_time = abs_time
+
+        # Add end of track marker
+        compiled.append(MetaMessage('end_of_track', time=0))
+
+        return compiled
+
+    def add_program_change(self, channel: int = None, program: int = 0) -> None:
+        """
+        Add a program change (instrument selection) to the MIDI track.
 
         Args:
-            channel (int): The MIDI channel for the program change. Must be an integer between 0 and 15 inclusive.
-            program (int): The program number. Must be an integer between 0 and 127 inclusive.
+            channel (int, optional): The MIDI channel. If None, uses the track's channel.
+            program (int): The program number (instrument). Must be 0-127.
 
         Raises:
-            ValueError: If channel or program is not an integer or is outside the valid range.
+            ValueError: If channel or program is outside the valid range.
         """
+        if channel is None:
+            channel = self._channel
 
         if not isinstance(channel, int) or not 0 <= channel <= 15:
             raise ValueError(f"Invalid channel value: {channel}. Channel must be an integer between 0 and 15")
         if not isinstance(program, int) or program < 0 or program > 127:
             raise ValueError(f"Invalid program value: {program}. Program must be an integer between 0 and 127")
 
-        self.track.append(Message("program_change", channel=channel, program=program))
+        self._track.append(Message("program_change", channel=channel, program=program))
 
-    def add_control_change(self, channel: int, control: int, value: int, time: int = 0) -> None:
+    def add_control_change(self, channel: int = None, control: int = 0, value: int = 0, time: int = 0) -> None:
         """
         Add a control change message to the MIDI track.
 
         Args:
-            channel (int): The MIDI channel to send the message to. Must be between 0 and 15.
-            control (int): The controller number to change. Must be between 0 and 127.
+            channel (int, optional): The MIDI channel. If None, uses the track's channel.
+            control (int): The controller number to change. Must be between 0 and 119.
             value (int): The value to set the controller to. Must be between 0 and 127.
-            time (int): The time at which to add the control change. Default is 0.
+            time (int): The delta time for the control change. Default is 0.
 
         Raises:
             ValueError: If channel, control, or value are outside of their respective valid ranges.
         """
+        if channel is None:
+            channel = self._channel
+
         if not isinstance(channel, int) or not 0 <= channel <= 15:
             raise ValueError(f"Invalid channel value: {channel}. Channel must be an integer between 0 and 15")
         if not isinstance(control, int) or not 0 <= control <= 119:
             raise ValueError(f"Invalid control value: {control}. Control must be an integer between 0 and 119")
         if not isinstance(value, int) or not 0 <= value <= 127:
             raise ValueError(f"Invalid value: {value}. Value must be between 0 and 127.")
-    
-        self.track.append(
+
+        self._track.append(
             Message(
                 "control_change",
                 channel=channel,
@@ -82,15 +176,21 @@ class Track:
             )
         )
 
-    def add_pitch_bend(self, channel: int, value: int, time: int = 0) -> None:
+    def add_pitch_bend(self, channel: int = None, value: int = 0, time: int = 0) -> None:
         """
         Add a pitch bend message to the track.
 
-        :param channel: The MIDI channel for the pitch bend.
-        :param value: The pitch bend value.
-        :param time: Optional, the time to schedule the pitch bend. Default is 0.
+        Args:
+            channel (int, optional): The MIDI channel. If None, uses the track's channel.
+            value (int): The pitch bend value (-8192 to 8191). 0 is center.
+            time (int): The delta time for the pitch bend. Default is 0.
+
+        Raises:
+            ValueError: If parameters are outside valid ranges.
         """
-        
+        if channel is None:
+            channel = self._channel
+
         if not isinstance(channel, int) or not 0 <= channel <= 15:
             raise ValueError("Invalid channel value: channel must be an integer between 0 and 15")
         if not isinstance(value, int) or value < -8192 or value > 8191:
@@ -98,35 +198,40 @@ class Track:
         if not isinstance(time, int) or time < 0:
             raise ValueError("Invalid time value: time must be a non-negative integer")
 
-        self.track.append(
+        self._track.append(
             Message("pitchwheel", channel=channel, pitch=value, time=time)
         )
     
     def add_note(self, note: Note) -> None:
         """
-        Add a note to the MIDI track.
+        Add a note to the track.
 
-        This method adds a note to the MIDI track with the specified velocity and duration, starting at the specified time.
+        Notes are stored internally and converted to MIDI messages when compile() is called.
+        This allows proper delta-time calculation across all notes.
 
-        Raises:
-            ValueError: If note, velocity, duration or time is not an integer or outside valid range.
+        Args:
+            note: A Note object with pitch, velocity, duration, and time.
         """
-        note_on_msg = Message("note_on", note=note.pitch, velocity=note.velocity, time=note.time)
-        self.track.append(note_on_msg)
+        if not isinstance(note, Note):
+            raise TypeError(f"Expected Note object, got {type(note).__name__}")
         self.notes.append(note)
-    
+
     def add_note_off_messages(self) -> None:
         """
-        This method is crucial for preventing timing offsets if the sequence 
-        of note_on and note_off messages is not properly managed due to the fundamental design of MIDI
-        
-        Should be called after all notes or chords are added to the track and before the track is saved or further 
-        processed. This is especially important in a live setting or when dynamically adding notes to ensure that 
-        playback reflects the exact intended timing without any shifts.
+        DEPRECATED: This method is no longer needed.
+
+        Use compile() instead, which properly handles note_on/note_off messages
+        with correct delta timing.
+
+        This method is kept for backward compatibility but does nothing.
         """
-        for note in self.notes:
-            note_off_msg = Message("note_off", note=note.pitch, velocity=note.velocity, time=(note.time+note.duration))
-            self.track.append(note_off_msg)
+        warnings.warn(
+            "add_note_off_messages() is deprecated and has no effect. "
+            "Use compile() for proper MIDI output with correct delta timing.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        # No-op: compile() handles note_off messages correctly
 
     def add_chord(self, chord: Chord) -> None:
         """
@@ -186,23 +291,67 @@ class Track:
 
     
     def set_tempo(self, tempo: int) -> None:
+        """
+        Set or update the tempo for this track.
+
+        Args:
+            tempo: Tempo in BPM (beats per minute). Must be a positive integer.
+
+        Raises:
+            ValueError: If tempo is not a positive integer.
+        """
         if not isinstance(tempo, int) or tempo <= 0:
             raise ValueError("Invalid tempo value: tempo must be a positive integer")
-        
+
         tempo_meta = bpm2tempo(tempo)
-        self.track = [msg for msg in self.track if msg.type != "set_tempo"]
-        self.track.append(MetaMessage('set_tempo', tempo=tempo_meta))
+        self._remove_meta_messages('set_tempo')
+        self._track.append(MetaMessage('set_tempo', tempo=tempo_meta))
 
     def set_time_signature(self, numerator: int, denominator: int) -> None:
+        """
+        Set or update the time signature for this track.
+
+        Args:
+            numerator: Top number of time signature (beats per measure).
+            denominator: Bottom number (note value that gets one beat).
+
+        Raises:
+            ValueError: If values are not positive integers.
+        """
         if not (isinstance(numerator, int) and isinstance(denominator, int)) or numerator <= 0 or denominator <= 0:
             raise ValueError("Invalid time signature values: numerator and denominator must be positive integers")
 
-        self.track = [msg for msg in self.track if msg.type != "time_signature"]
-        self.track.append(MetaMessage('time_signature', numerator=numerator, denominator=denominator))
+        self._remove_meta_messages('time_signature')
+        self._track.append(MetaMessage('time_signature', numerator=numerator, denominator=denominator))
 
     def set_key_signature(self, key: Key) -> None:
+        """
+        Set or update the key signature for this track.
+
+        Args:
+            key: A Key object representing the key signature.
+
+        Raises:
+            ValueError: If key is not a Key object.
+        """
         if not isinstance(key, Key):
             raise ValueError("Invalid key signature: must be a Key object")
 
-        self.track = [msg for msg in self.track if msg.type != "key_signature"]
-        self.track.append(MetaMessage('key_signature', key=str(key)))
+        self._remove_meta_messages('key_signature')
+        self._track.append(MetaMessage('key_signature', key=str(key)))
+
+    def _remove_meta_messages(self, msg_type: str) -> None:
+        """
+        Remove all meta messages of a specific type from the internal track.
+
+        This preserves the MidiTrack type (avoiding type mutation to list).
+
+        Args:
+            msg_type: The type of meta message to remove (e.g., 'set_tempo').
+        """
+        # Build a new MidiTrack without the specified message type
+        new_track = MidiTrack()
+        for msg in self._track:
+            if msg.type != msg_type:
+                new_track.append(msg)
+        self._track = new_track

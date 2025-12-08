@@ -1,6 +1,5 @@
 from typing import Tuple
 import os
-from music21 import scale as m21_scale
 from mido import MidiFile
 from midigen.key import Key
 from midigen.track import Track
@@ -134,15 +133,22 @@ class MidiGen(MidiFile):
         for track in self.tracks:
             track.set_key_signature(key)
 
-    def set_mode(self, key_signature: Key, mode: str) -> None:
+    def set_mode(self, key_name: str, mode: str) -> None:
         """
         Set the mode of the MidiGen object.
 
-        :param key_signature: The key signature, e.g. 'C'.
-        :param mode: The mode, e.g. 'major', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian'.
+        Args:
+            key_name: The root note of the key, e.g. 'C', 'F#', 'Bb'.
+            mode: The mode, e.g. 'major', 'dorian', 'phrygian', 'lydian',
+                  'mixolydian', 'aeolian', 'locrian'.
+
+        Example:
+            >>> midi.set_mode('D', 'dorian')  # D Dorian mode
+            >>> midi.set_mode('A', 'minor')   # A minor (aeolian)
         """
         allowed_modes = [
             "major",
+            "minor",
             "dorian",
             "phrygian",
             "lydian",
@@ -156,16 +162,15 @@ class MidiGen(MidiFile):
             )
 
         self.mode = mode
-        scale_degree = m21_scale.scale_degrees_to_key(key_signature, mode)
-        key = Key(scale_degree, mode)
+        key = Key(key_name, mode)
         self.set_key_signature(key)
 
     def save(self, filename: str, output_dir: str = None) -> str:
         """
         Compile all tracks and save the MIDI file to the specified path.
 
-        This method first compiles all the individual tracks into the MidiFile
-        and then saves the complete MIDI composition to the specified filename.
+        This method compiles all tracks with proper delta timing and saves
+        the complete MIDI composition to the specified filename.
 
         Args:
             filename (str): The name of the MIDI file (e.g., "my_song.mid")
@@ -183,8 +188,9 @@ class MidiGen(MidiFile):
         """
         self.midi_file.tracks.clear()
         for track in self.tracks:
-            track.add_note_off_messages()
-            self.midi_file.tracks.append(track.get_track())
+            # Use compile() for proper delta-time MIDI output
+            compiled_track = track.compile()
+            self.midi_file.tracks.append(compiled_track)
 
         # Determine output directory
         if output_dir is None:
