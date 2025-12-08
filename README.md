@@ -40,10 +40,11 @@ poetry install
 
 ## Getting Started: Create a Song in 5 Lines
 
-The easiest way to get started with MidiGen is by using the `Song` class. Here's how you can create a simple song with a classic I-V-vi-IV chord progression:
+The easiest way to get started with MidiGen is by using the `Song` class and `MidiCompiler`. Here's how you can create a simple song with a classic I-V-vi-IV chord progression:
 
 ```python
 from midigen import Song, Section, Key
+from midigen.compiler import MidiCompiler
 
 # 1. Create a Song with a key and tempo
 song = Song(key=Key("C", "major"), tempo=120)
@@ -54,14 +55,14 @@ song.add_section(Section(name="Verse", length=8, chord_progression="I-V-vi-IV"))
 # 3. Add an instrument to play the progression
 song.add_instrument("Acoustic Grand Piano")
 
-# 4. Generate the notes for the instrument
-song.generate(instrument_name="Acoustic Grand Piano")
-
-# 5. Save the MIDI file
-song.save("my_first_song.mid")
+# 4. Compile and save the MIDI file
+compiler = MidiCompiler(song)
+compiler.compile().save("my_first_song.mid")
 
 print("Song 'my_first_song.mid' created successfully!")
 ```
+
+> **Note:** The `Song` class is a pure data container for your musical intent. The `MidiCompiler` handles all MIDI protocol details (channels, tracks, timing). This separation makes songs easier to manipulate and test.
 
 ## Advanced Usage
 
@@ -137,6 +138,7 @@ Create layered arrangements with multiple instruments:
 
 ```python
 from midigen import Song, Section, Key
+from midigen.compiler import MidiCompiler
 
 # Create a song with a minor key
 song = Song(key=Key("Am", "minor"), tempo=90)
@@ -150,13 +152,14 @@ song.add_instrument("Synth Bass 1")
 song.add_instrument("String Ensemble 1")
 song.add_instrument("Lead 1 (square)")
 
-# Generate parts for each instrument
-song.generate(instrument_name="Synth Bass 1", octave=3)
-song.generate(instrument_name="String Ensemble 1", octave=4)
-song.generate(instrument_name="Lead 1 (square)", octave=5)
+# Compile with custom settings per instrument
+compiler = MidiCompiler(song)
+compiler.compile_instrument("Synth Bass 1", octave=3)
+compiler.compile_instrument("String Ensemble 1", octave=4)
+compiler.compile_instrument("Lead 1 (square)", octave=5)
 
 # Save with optional output directory
-song.save("multi_track_song.mid", output_dir="./output")
+compiler.save("multi_track_song.mid", output_dir="./output")
 ```
 
 ### Creating Drum Patterns
@@ -275,6 +278,23 @@ track.add_chord(c_major_chord)
 
 midi_gen.save("low_level_example.mid")
 ```
+
+## Legacy API Support
+
+For backward compatibility, the `Song` class still supports the older API pattern where `generate()` and `save()` are called directly on the song. This pattern is deprecated and will emit warnings:
+
+```python
+# Legacy pattern (deprecated but still works)
+from midigen import Song, Section, Key
+
+song = Song(key=Key("C", "major"), tempo=120)
+song.add_section(Section("Verse", 8, "I-V-vi-IV"))
+song.add_instrument("Acoustic Grand Piano")
+song.generate(instrument_name="Acoustic Grand Piano")  # Deprecated
+song.save("my_song.mid")  # Deprecated
+```
+
+We recommend migrating to the `MidiCompiler` pattern shown in the examples above for better separation of concerns and more control over the compilation process.
 
 ## Contributing
 
