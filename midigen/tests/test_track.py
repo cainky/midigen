@@ -1,4 +1,4 @@
-from midigen.midigen import MidiGen
+from midigen.api.midigen import MidiGen
 from midigen.theory.note import Note
 from midigen.theory.key import KEY_MAP
 from midigen.composition.chord import Chord

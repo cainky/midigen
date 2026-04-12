@@ -1,5 +1,5 @@
 import os
-from midigen.midigen import MidiGen
+from midigen.api.midigen import MidiGen
 from midigen.theory.note import Note
 from mido import MidiFile
 from midigen.theory.key import Key

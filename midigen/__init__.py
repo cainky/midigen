@@ -15,6 +15,6 @@ from .protocol.track import Track
 from .protocol.channel_pool import ChannelPool, ChannelExhaustedError
 from .protocol.instruments import INSTRUMENT_MAP
 
-from .midigen import MidiGen
-from .song import Song
-from .compiler import MidiCompiler
+from .api.midigen import MidiGen
+from .api.song import Song
+from .api.compiler import MidiCompiler

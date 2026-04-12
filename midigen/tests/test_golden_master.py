@@ -15,7 +15,7 @@ import unittest
 from io import BytesIO
 from pathlib import Path
 
-from midigen import MidiGen, Song, Section, Key, Note, Chord
+from midigen import MidiGen, Song, Section, Key, Note, Chord, MidiCompiler
 
 
 GOLDEN_DIR = Path(__file__).parent / "golden_files"
@@ -143,9 +143,11 @@ class TestGoldenMaster(unittest.TestCase):
         song = Song(key=Key("C", "major"), tempo=120)
         song.add_section(Section(name="Verse", length=4, chord_progression="I-V-vi-IV"))
         song.add_instrument("Acoustic Grand Piano")
-        song.generate("Acoustic Grand Piano")
 
-        output = get_midi_bytes(song.midigen)
+        compiler = MidiCompiler(song)
+        compiler.compile_instrument("Acoustic Grand Piano")
+
+        output = get_midi_bytes(compiler.midigen)
         self._compare_or_regenerate(
             output, "progression_i_v_vi_iv.mid", "I-V-vi-IV progression"
         )

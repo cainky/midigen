@@ -35,7 +35,8 @@ Section Length Behavior:
 
 from typing import Dict, List, Optional
 
-from midigen.midigen import MidiGen
+from midigen.api.midigen import MidiGen
+from midigen.api.song import Song
 from midigen.theory.key import Key
 from midigen.theory.note import Note
 from midigen.composition.chord import Chord
@@ -346,8 +347,3 @@ class MidiCompiler:
         if track_index is not None:
             return self._midigen.tracks[track_index]
         return None
-
-
-# Import Song here to avoid circular imports
-# This is at the bottom because Song is imported for type hints only
-from midigen.song import Song  # noqa: E402

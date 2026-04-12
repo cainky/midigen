@@ -65,7 +65,7 @@ class TestIntegration(unittest.TestCase):
 
     def test_song_class_with_multiple_sections_and_instruments(self):
         """Test Song class with complex arrangement using MidiCompiler"""
-        from midigen.compiler import MidiCompiler
+        from midigen.api.compiler import MidiCompiler
 
         song = Song(key=Key("D", "minor"), tempo=110)
 
