@@ -36,8 +36,8 @@ Section Length Behavior:
 from typing import Dict, List, Optional
 
 from midigen.midigen import MidiGen
-from midigen.key import Key
-from midigen.note import Note
+from midigen.theory.key import Key
+from midigen.theory.note import Note
 from midigen.chord import Chord, ChordProgression
 from midigen.channel_pool import ChannelPool, ChannelExhaustedError
 from midigen.instruments import INSTRUMENT_MAP

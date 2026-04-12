@@ -7,7 +7,7 @@ music21-based implementation.
 """
 
 import unittest
-from midigen.roman import (
+from midigen.theory.roman import (
     parse_roman_numeral,
     get_root_pitch,
     get_chord_pitches,

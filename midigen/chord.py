@@ -1,7 +1,7 @@
 from typing import List
-from midigen.note import Note
-from midigen.key import KEY_MAP, Key
-from midigen.roman import get_chord_pitches
+from midigen.theory.note import Note
+from midigen.theory.key import KEY_MAP, Key
+from midigen.theory.roman import get_chord_pitches
 from enum import Enum
 
 

@@ -4,8 +4,8 @@ import warnings
 
 
 from midigen.chord import Chord, ChordProgression, Arpeggio
-from midigen.key import Key
-from midigen.note import Note
+from midigen.theory.key import Key
+from midigen.theory.note import Note
 from midigen.drums import DrumKit
 
 

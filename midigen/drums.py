@@ -1,4 +1,4 @@
-from midigen.note import Note
+from midigen.theory.note import Note
 from typing import List
 
 GM1_DRUM_MAP = {

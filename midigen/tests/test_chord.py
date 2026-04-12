@@ -1,5 +1,5 @@
-from midigen.note import Note
-from midigen.key import KEY_MAP
+from midigen.theory.note import Note
+from midigen.theory.key import KEY_MAP
 from midigen.chord import Chord, ChordProgression, Arpeggio, ArpeggioPattern
 import unittest
 
@@ -254,7 +254,7 @@ class TestArpeggio(unittest.TestCase):
         self.assertEqual(sequential_notes[6].time, 300)    # Loop 3
 
 
-from midigen.key import Key
+from midigen.theory.key import Key
 
 class TestChordProgressionFromRomanNumerals(unittest.TestCase):
 

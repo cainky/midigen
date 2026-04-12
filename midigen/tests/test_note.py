@@ -1,5 +1,5 @@
-from midigen.note import Note
-from midigen.key import KEY_MAP
+from midigen.theory.note import Note
+from midigen.theory.key import KEY_MAP
 import unittest
 
 

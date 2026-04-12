@@ -27,7 +27,7 @@ For backward compatibility, Song still supports the legacy API:
 import warnings
 from typing import List, Set
 
-from midigen.key import Key
+from midigen.theory.key import Key
 from midigen.section import Section
 
 
