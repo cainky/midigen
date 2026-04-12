@@ -8,7 +8,7 @@ from midigen.composition.progression import ChordProgression
 from midigen.composition.arpeggio import Arpeggio
 from midigen.theory.key import Key
 from midigen.theory.note import Note
-from midigen.drums import DrumKit
+from midigen.composition.drums import DrumKit
 
 
 MAX_MIDI_TICKS = 32767  # Maximum value for a 15-bit signed integer

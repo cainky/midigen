@@ -28,7 +28,7 @@ import warnings
 from typing import List, Set
 
 from midigen.theory.key import Key
-from midigen.section import Section
+from midigen.composition.section import Section
 
 
 class Song:

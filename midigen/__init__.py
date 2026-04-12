@@ -7,9 +7,9 @@ from .theory.roman import parse_roman_numeral, get_chord_pitches
 from .composition.chord import Chord, CHORD_TYPES
 from .composition.progression import ChordProgression
 from .composition.arpeggio import Arpeggio, ArpeggioPattern
-from .drums import DrumKit, Drum
-from .melody import Melody
-from .section import Section
+from .composition.drums import DrumKit, Drum
+from .composition.melody import Melody
+from .composition.section import Section
 
 from .track import Track
 from .channel_pool import ChannelPool, ChannelExhaustedError

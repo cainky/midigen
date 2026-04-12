@@ -1,5 +1,5 @@
 import unittest
-from midigen.drums import DrumKit, Drum, GM1_DRUM_MAP
+from midigen.composition.drums import DrumKit, Drum, GM1_DRUM_MAP
 from midigen.theory.note import Note
 
 
