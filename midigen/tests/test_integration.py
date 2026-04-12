@@ -1,5 +1,5 @@
 import unittest
-from midigen import MidiGen, Track, Note, Chord, ChordProgression, Key, DrumKit, Drum, Song, Section
+from midigen import MidiGen, Note, Chord, ChordProgression, Key, DrumKit, Song, Section
 
 
 class TestIntegration(unittest.TestCase):

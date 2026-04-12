@@ -1,6 +1,6 @@
 from midigen.theory.note import Note
 from midigen.theory.key import KEY_MAP
-from midigen.composition.chord import Chord
+from midigen.composition.chord import Chord, CHORD_TYPES
 from midigen.composition.progression import ChordProgression
 from midigen.composition.arpeggio import Arpeggio, ArpeggioPattern
 import unittest
@@ -309,3 +309,44 @@ class TestChordProgressionFromRomanNumerals(unittest.TestCase):
         # This is tricky because the time is distributed among the notes.
         # The first note of the second chord should have the time of the first chord's duration.
         self.assertEqual(progression.chords[1].notes[0].time, 480)
+
+
+class TestChordBuild(unittest.TestCase):
+    def setUp(self):
+        self.root = Note(KEY_MAP["C4"], 64, 480, 0)
+
+    def test_build_all_chord_types(self):
+        """Every CHORD_TYPES entry produces a chord with correct note count."""
+        for chord_type, intervals in CHORD_TYPES.items():
+            chord = Chord.build(chord_type, self.root)
+            self.assertEqual(
+                len(chord.notes), len(intervals),
+                f"Chord.build('{chord_type}') produced {len(chord.notes)} notes, expected {len(intervals)}"
+            )
+
+    def test_build_intervals_match(self):
+        """Verify pitch offsets match the CHORD_TYPES intervals."""
+        for chord_type, intervals in CHORD_TYPES.items():
+            chord = Chord.build(chord_type, self.root)
+            root_pitch = self.root.pitch
+            actual_intervals = tuple(n.pitch - root_pitch for n in chord.notes)
+            self.assertEqual(
+                actual_intervals, intervals,
+                f"Chord.build('{chord_type}') intervals {actual_intervals} != {intervals}"
+            )
+
+    def test_build_invalid_type_raises(self):
+        """Invalid chord type name raises KeyError."""
+        with self.assertRaises(KeyError):
+            Chord.build("nonexistent_chord", self.root)
+
+    def test_build_matches_create_wrappers(self):
+        """Chord.build() produces same result as named create_* methods."""
+        self.assertEqual(
+            Chord.create_major_triad(self.root).notes,
+            Chord.build("major_triad", self.root).notes
+        )
+        self.assertEqual(
+            Chord.create_sus2(self.root).notes,
+            Chord.build("sus2", self.root).notes
+        )

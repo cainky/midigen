@@ -1,6 +1,5 @@
 from typing import List
 from midigen.theory.note import Note
-from midigen.theory.key import KEY_MAP, Key
 
 
 CHORD_TYPES = {

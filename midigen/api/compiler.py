@@ -33,7 +33,7 @@ Section Length Behavior:
       - Compiler truncates: I-IV (first 2 bars only)
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from midigen.api.midigen import MidiGen
 from midigen.api.song import Song

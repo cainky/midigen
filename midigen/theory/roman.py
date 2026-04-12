@@ -13,7 +13,7 @@ Supports:
 """
 
 import re
-from typing import List, Tuple, Optional
+from typing import List
 from dataclasses import dataclass
 from enum import Enum
 
