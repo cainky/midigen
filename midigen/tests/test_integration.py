@@ -20,7 +20,7 @@ class TestIntegration(unittest.TestCase):
         ]
         for note in melody_notes:
             melody_track.add_note(note)
-        melody_track.add_note_off_messages()
+
 
         # Track 1: Chord progression
         midi.add_track()
@@ -35,7 +35,7 @@ class TestIntegration(unittest.TestCase):
             time_per_chord=480
         )
         chord_track.add_chord_progression(progression)
-        chord_track.add_note_off_messages()
+
 
         # Track 2: Drums
         midi.add_track()
@@ -49,7 +49,7 @@ class TestIntegration(unittest.TestCase):
         drum_kit.add_drum("Acoustic Snare", velocity=80, duration=240, time=1440)
 
         drum_track.add_drum_kit(drum_kit)
-        drum_track.add_note_off_messages()
+
 
         # Verify tracks were created (includes default track 0)
         self.assertEqual(len(midi.tracks), 3)
@@ -110,7 +110,7 @@ class TestIntegration(unittest.TestCase):
         track.add_note(note1)
         track.add_note(note2)
         track.add_note(note3)
-        track.add_note_off_messages()
+
 
         # Verify all notes were added
         self.assertEqual(len(track.notes), 3)
@@ -139,7 +139,7 @@ class TestIntegration(unittest.TestCase):
         chord2 = Chord.create_major_triad(root2)
         track.add_chord(chord2)
 
-        track.add_note_off_messages()
+
 
         # Verify timing structure
         self.assertEqual(len(track.notes), 7)  # 3 from first chord + 1 note + 3 from second chord
