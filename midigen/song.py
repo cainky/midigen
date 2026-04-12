@@ -106,7 +106,7 @@ class Song:
         Raises:
             ValueError: If the instrument name is not valid.
         """
-        from midigen.instruments import INSTRUMENT_MAP
+        from midigen.protocol.instruments import INSTRUMENT_MAP
 
         if name not in INSTRUMENT_MAP:
             raise ValueError(f"Instrument '{name}' not found in INSTRUMENT_MAP.")

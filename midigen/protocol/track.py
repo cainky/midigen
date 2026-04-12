@@ -1,14 +1,17 @@
+from __future__ import annotations
+
 from mido import MidiTrack, Message, MetaMessage, bpm2tempo
-from typing import List, Tuple
+from typing import List, Tuple, TYPE_CHECKING
 import warnings
 
-
-from midigen.composition.chord import Chord
-from midigen.composition.progression import ChordProgression
-from midigen.composition.arpeggio import Arpeggio
 from midigen.theory.key import Key
 from midigen.theory.note import Note
-from midigen.composition.drums import DrumKit
+
+if TYPE_CHECKING:
+    from midigen.composition.chord import Chord
+    from midigen.composition.progression import ChordProgression
+    from midigen.composition.arpeggio import Arpeggio
+    from midigen.composition.drums import DrumKit
 
 
 MAX_MIDI_TICKS = 32767  # Maximum value for a 15-bit signed integer

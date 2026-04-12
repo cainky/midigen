@@ -8,8 +8,8 @@ with the legacy Song API.
 import unittest
 import warnings
 from midigen import Song, Section, Key, MidiCompiler
-from midigen.channel_pool import ChannelExhaustedError
-from midigen.instruments import INSTRUMENT_MAP
+from midigen.protocol.channel_pool import ChannelExhaustedError
+from midigen.protocol.instruments import INSTRUMENT_MAP
 
 
 class TestSong(unittest.TestCase):

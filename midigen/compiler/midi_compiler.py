@@ -40,8 +40,8 @@ from midigen.theory.key import Key
 from midigen.theory.note import Note
 from midigen.composition.chord import Chord
 from midigen.composition.progression import ChordProgression
-from midigen.channel_pool import ChannelPool, ChannelExhaustedError
-from midigen.instruments import INSTRUMENT_MAP
+from midigen.protocol.channel_pool import ChannelPool, ChannelExhaustedError
+from midigen.protocol.instruments import INSTRUMENT_MAP
 
 
 # Default timing constants
