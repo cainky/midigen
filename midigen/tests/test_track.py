@@ -1,7 +1,8 @@
 from midigen.midigen import MidiGen
 from midigen.theory.note import Note
 from midigen.theory.key import KEY_MAP
-from midigen.chord import Chord, Arpeggio
+from midigen.composition.chord import Chord
+from midigen.composition.arpeggio import Arpeggio
 from midigen.track import MAX_MIDI_TICKS
 import unittest
 

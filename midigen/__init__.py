@@ -4,7 +4,9 @@ from .theory.scale import Scale
 from .theory.time_utils import TimeConverter
 from .theory.roman import parse_roman_numeral, get_chord_pitches
 
-from .chord import Chord, ChordProgression, Arpeggio, ArpeggioPattern
+from .composition.chord import Chord, CHORD_TYPES
+from .composition.progression import ChordProgression
+from .composition.arpeggio import Arpeggio, ArpeggioPattern
 from .drums import DrumKit, Drum
 from .melody import Melody
 from .section import Section

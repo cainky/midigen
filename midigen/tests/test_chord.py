@@ -1,6 +1,8 @@
 from midigen.theory.note import Note
 from midigen.theory.key import KEY_MAP
-from midigen.chord import Chord, ChordProgression, Arpeggio, ArpeggioPattern
+from midigen.composition.chord import Chord
+from midigen.composition.progression import ChordProgression
+from midigen.composition.arpeggio import Arpeggio, ArpeggioPattern
 import unittest
 
 

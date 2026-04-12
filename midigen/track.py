@@ -3,7 +3,9 @@ from typing import List, Tuple
 import warnings
 
 
-from midigen.chord import Chord, ChordProgression, Arpeggio
+from midigen.composition.chord import Chord
+from midigen.composition.progression import ChordProgression
+from midigen.composition.arpeggio import Arpeggio
 from midigen.theory.key import Key
 from midigen.theory.note import Note
 from midigen.drums import DrumKit

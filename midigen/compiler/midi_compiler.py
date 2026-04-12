@@ -38,7 +38,8 @@ from typing import Dict, List, Optional
 from midigen.midigen import MidiGen
 from midigen.theory.key import Key
 from midigen.theory.note import Note
-from midigen.chord import Chord, ChordProgression
+from midigen.composition.chord import Chord
+from midigen.composition.progression import ChordProgression
 from midigen.channel_pool import ChannelPool, ChannelExhaustedError
 from midigen.instruments import INSTRUMENT_MAP
 
