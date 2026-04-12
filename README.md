@@ -279,22 +279,16 @@ track.add_chord(c_major_chord)
 midi_gen.save("low_level_example.mid")
 ```
 
-## Legacy API Support
+## Architecture
 
-For backward compatibility, the `Song` class still supports the older API pattern where `generate()` and `save()` are called directly on the song. This pattern is deprecated and will emit warnings:
+The library is organized into four layers:
 
-```python
-# Legacy pattern (deprecated but still works)
-from midigen import Song, Section, Key
+- **`midigen.theory`** — Pure music theory (Note, Key, Scale, roman numeral parsing, time conversion)
+- **`midigen.composition`** — Musical structures (Chord, ChordProgression, Arpeggio, Melody, DrumKit, Section)
+- **`midigen.protocol`** — MIDI protocol (Track, ChannelPool, instruments)
+- **`midigen.api`** — High-level API (Song, MidiGen, MidiCompiler)
 
-song = Song(key=Key("C", "major"), tempo=120)
-song.add_section(Section("Verse", 8, "I-V-vi-IV"))
-song.add_instrument("Acoustic Grand Piano")
-song.generate(instrument_name="Acoustic Grand Piano")  # Deprecated
-song.save("my_song.mid")  # Deprecated
-```
-
-We recommend migrating to the `MidiCompiler` pattern shown in the examples above for better separation of concerns and more control over the compilation process.
+All public names are available via `from midigen import ...`.
 
 ## Contributing
 
