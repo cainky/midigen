@@ -13,7 +13,6 @@ from midigen.theory.roman import (
     get_chord_pitches,
     get_note_names_for_pitches,
     ChordQuality,
-    ParsedRomanNumeral,
     MAJOR_SCALE_SEMITONES,
     MINOR_SCALE_SEMITONES,
 )

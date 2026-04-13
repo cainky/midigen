@@ -37,7 +37,6 @@ from typing import Dict, List
 
 from midigen.api.midigen import MidiGen
 from midigen.api.song import Song
-from midigen.theory.key import Key
 from midigen.theory.note import Note
 from midigen.composition.chord import Chord
 from midigen.composition.progression import ChordProgression
