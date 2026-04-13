@@ -1,6 +1,6 @@
 [project]
 name = "midigen-lib"
-version = "1.0.0"
+version = "1.1.0"
 description = "High-level, theory-powered MIDI generation library"
 authors = [{ name = "cainky", email = "kylecain.me@gmail.com" }]
 readme = "README.md"

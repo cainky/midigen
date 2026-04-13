@@ -29,18 +29,17 @@ uv sync
 ## Quick Start
 
 ```python
-from midigen import Song, Section, Key
-from midigen import MidiCompiler
+from midigen import Song, Section, Key, MidiCompiler
 
 song = Song(key=Key("C", "major"), tempo=120)
-song.add_section(Section(name="Verse", length=8, chord_progression="I-V-vi-IV"))
+song.add_section(Section("Verse", 8, "I-V-vi-IV"))
+song.add_section(Section("Chorus", 4, "IV-I-V-vi"))
 song.add_instrument("Acoustic Grand Piano")
 
-compiler = MidiCompiler(song)
-compiler.compile().save("my_song.mid")
+MidiCompiler(song).compile().save("my_song.mid")
 ```
 
-The `Song` class holds your musical intent as data. The `MidiCompiler` handles all MIDI protocol details (channels, tracks, timing). This separation makes songs easier to manipulate and test.
+`Song` holds your musical intent. `MidiCompiler` handles MIDI protocol details (channels, tracks, timing).
 
 ## Features
 
@@ -111,8 +110,7 @@ c_chromatic = Scale.chromatic(60)
 ### Multi-Track Compositions
 
 ```python
-from midigen import Song, Section, Key
-from midigen import MidiCompiler
+from midigen import Song, Section, Key, MidiCompiler
 
 song = Song(key=Key("Am", "minor"), tempo=90)
 
