@@ -1,12 +1,16 @@
+from __future__ import annotations
+
 from mido import MidiTrack, Message, MetaMessage, bpm2tempo
-from typing import List, Tuple
-import warnings
+from typing import List, Tuple, TYPE_CHECKING
 
+from midigen.theory.key import Key
+from midigen.theory.note import Note
 
-from midigen.chord import Chord, ChordProgression, Arpeggio
-from midigen.key import Key
-from midigen.note import Note
-from midigen.drums import DrumKit
+if TYPE_CHECKING:
+    from midigen.composition.chord import Chord
+    from midigen.composition.progression import ChordProgression
+    from midigen.composition.arpeggio import Arpeggio
+    from midigen.composition.drums import DrumKit
 
 
 MAX_MIDI_TICKS = 32767  # Maximum value for a 15-bit signed integer
@@ -215,23 +219,6 @@ class Track:
         if not isinstance(note, Note):
             raise TypeError(f"Expected Note object, got {type(note).__name__}")
         self.notes.append(note)
-
-    def add_note_off_messages(self) -> None:
-        """
-        DEPRECATED: This method is no longer needed.
-
-        Use compile() instead, which properly handles note_on/note_off messages
-        with correct delta timing.
-
-        This method is kept for backward compatibility but does nothing.
-        """
-        warnings.warn(
-            "add_note_off_messages() is deprecated and has no effect. "
-            "Use compile() for proper MIDI output with correct delta timing.",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        # No-op: compile() handles note_off messages correctly
 
     def add_chord(self, chord: Chord) -> None:
         """

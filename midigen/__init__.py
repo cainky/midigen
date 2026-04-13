@@ -1,14 +1,20 @@
-from .midigen import MidiGen
-from .track import Track
-from .note import Note
-from .chord import Chord, ChordProgression, Arpeggio, ArpeggioPattern
-from .key import Key, KEY_MAP
-from .scale import Scale
-from .drums import DrumKit, Drum
-from .song import Song
-from .section import Section
-from .instruments import INSTRUMENT_MAP
-from .time_utils import TimeConverter
-from .melody import Melody
-from .channel_pool import ChannelPool, ChannelExhaustedError
-from .compiler import MidiCompiler
+from .theory.note import Note, NOTE_ON, NOTE_OFF
+from .theory.key import Key, KEY_MAP, VALID_KEYS
+from .theory.scale import Scale
+from .theory.time_utils import TimeConverter
+from .theory.roman import parse_roman_numeral, get_chord_pitches
+
+from .composition.chord import Chord, CHORD_TYPES
+from .composition.progression import ChordProgression
+from .composition.arpeggio import Arpeggio, ArpeggioPattern
+from .composition.drums import DrumKit, Drum, GM1_DRUM_MAP
+from .composition.melody import Melody
+from .composition.section import Section
+
+from .protocol.track import Track, MAX_MIDI_TICKS
+from .protocol.channel_pool import ChannelPool, ChannelExhaustedError
+from .protocol.instruments import INSTRUMENT_MAP
+
+from .api.midigen import MidiGen
+from .api.song import Song
+from .api.compiler import MidiCompiler

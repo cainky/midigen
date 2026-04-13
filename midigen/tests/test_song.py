@@ -6,10 +6,9 @@ with the legacy Song API.
 """
 
 import unittest
-import warnings
 from midigen import Song, Section, Key, MidiCompiler
-from midigen.channel_pool import ChannelExhaustedError
-from midigen.instruments import INSTRUMENT_MAP
+from midigen.protocol.channel_pool import ChannelExhaustedError
+from midigen.protocol.instruments import INSTRUMENT_MAP
 
 
 class TestSong(unittest.TestCase):
@@ -254,45 +253,6 @@ class TestSectionLength(unittest.TestCase):
         verse_notes = [n for n in track.notes if n.time >= 3840]
         self.assertEqual(len(intro_notes), 24)  # 8 chords * 3 notes
         self.assertEqual(len(verse_notes), 48)  # 16 chords * 3 notes
-
-
-class TestLegacyAPI(unittest.TestCase):
-    """Tests for backward compatibility with legacy Song API."""
-
-    def test_legacy_generate(self):
-        """Test legacy Song.generate() still works."""
-        song = Song(key=Key("C", "major"))
-        song.add_section(Section(name="Verse", length=4, chord_progression="I-V-vi-IV"))
-        song.add_instrument("Acoustic Grand Piano")
-
-        # Suppress the deprecation warning for this test
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            song.generate("Acoustic Grand Piano")
-
-        track = song.midigen.tracks[1]  # Track 0 is default, 1 is piano
-        # With section length enforcement: 4 bars * 4 beats = 16 chords
-        # 16 chords * 3 notes = 48 notes
-        self.assertEqual(len(track.notes), 48)
-
-    def test_legacy_available_channels(self):
-        """Test legacy available_channels property."""
-        song = Song()
-        song.add_instrument("Acoustic Grand Piano")
-        song.add_instrument("Acoustic Bass")
-
-        # This triggers compiler creation and channel allocation
-        available = song.available_channels
-        self.assertEqual(available, 13)
-
-    def test_deprecation_warning_on_generate(self):
-        """Test that Song.generate() raises deprecation warning."""
-        song = Song()
-        song.add_section(Section("Verse", 4, "I-V-vi-IV"))
-        song.add_instrument("Acoustic Grand Piano")
-
-        with self.assertWarns(DeprecationWarning):
-            song.generate("Acoustic Grand Piano")
 
 
 if __name__ == "__main__":

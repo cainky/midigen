@@ -1,7 +1,4 @@
-from midigen.midigen import MidiGen
-from midigen.note import Note
-from midigen.chord import Chord
-from midigen.key import Key, KEY_MAP
+from midigen import MidiGen, Note, Chord, Key, KEY_MAP
 
 midi_gen = MidiGen(tempo=120, time_signature=(4, 4), key_signature=Key("C"))
 

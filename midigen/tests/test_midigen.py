@@ -1,8 +1,8 @@
 import os
-from midigen.midigen import MidiGen
-from midigen.note import Note
+from midigen.api.midigen import MidiGen
+from midigen.theory.note import Note
 from mido import MidiFile
-from midigen.key import Key
+from midigen.theory.key import Key
 import unittest
 
 from mido import bpm2tempo, Message

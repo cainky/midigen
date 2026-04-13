@@ -1,5 +1,5 @@
-from midigen.scale import Scale
-from midigen.key import KEY_MAP
+from midigen.theory.scale import Scale
+from midigen.theory.key import KEY_MAP
 import unittest
 
 

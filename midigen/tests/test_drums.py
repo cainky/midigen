@@ -1,6 +1,6 @@
 import unittest
-from midigen.drums import DrumKit, Drum, GM1_DRUM_MAP
-from midigen.note import Note
+from midigen.composition.drums import DrumKit, Drum, GM1_DRUM_MAP
+from midigen.theory.note import Note
 
 
 class TestDrumKit(unittest.TestCase):

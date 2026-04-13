@@ -33,14 +33,15 @@ Section Length Behavior:
       - Compiler truncates: I-IV (first 2 bars only)
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-from midigen.midigen import MidiGen
-from midigen.key import Key
-from midigen.note import Note
-from midigen.chord import Chord, ChordProgression
-from midigen.channel_pool import ChannelPool, ChannelExhaustedError
-from midigen.instruments import INSTRUMENT_MAP
+from midigen.api.midigen import MidiGen
+from midigen.api.song import Song
+from midigen.theory.note import Note
+from midigen.composition.chord import Chord
+from midigen.composition.progression import ChordProgression
+from midigen.protocol.channel_pool import ChannelPool, ChannelExhaustedError
+from midigen.protocol.instruments import INSTRUMENT_MAP
 
 
 # Default timing constants
@@ -345,8 +346,3 @@ class MidiCompiler:
         if track_index is not None:
             return self._midigen.tracks[track_index]
         return None
-
-
-# Import Song here to avoid circular imports
-# This is at the bottom because Song is imported for type hints only
-from midigen.song import Song  # noqa: E402

@@ -1,5 +1,5 @@
 import unittest
-from midigen.channel_pool import ChannelPool, ChannelExhaustedError
+from midigen.protocol.channel_pool import ChannelPool, ChannelExhaustedError
 
 
 class TestChannelPool(unittest.TestCase):

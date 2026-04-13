@@ -1,4 +1,4 @@
-from midigen.key import Key, VALID_KEYS
+from midigen.theory.key import Key, VALID_KEYS
 import unittest
 
 class TestKey(unittest.TestCase):

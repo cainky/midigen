@@ -1,8 +1,8 @@
 from typing import Tuple
 import os
 from mido import MidiFile
-from midigen.key import Key
-from midigen.track import Track
+from midigen.theory.key import Key
+from midigen.protocol.track import Track
 from pathlib import Path
 
 

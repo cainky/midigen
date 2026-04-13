@@ -3,9 +3,9 @@ Melody generation utilities for creating melodic sequences.
 """
 
 from typing import List, Union
-from midigen.note import Note
-from midigen.key import KEY_MAP
-from midigen.time_utils import TimeConverter
+from midigen.theory.note import Note
+from midigen.theory.key import KEY_MAP
+from midigen.theory.time_utils import TimeConverter
 import random
 
 

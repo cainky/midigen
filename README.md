@@ -23,14 +23,14 @@ For development:
 ```bash
 git clone https://github.com/cainky/midigen.git
 cd midigen
-poetry install
+uv sync
 ```
 
 ## Quick Start
 
 ```python
 from midigen import Song, Section, Key
-from midigen.compiler import MidiCompiler
+from midigen import MidiCompiler
 
 song = Song(key=Key("C", "major"), tempo=120)
 song.add_section(Section(name="Verse", length=8, chord_progression="I-V-vi-IV"))
@@ -112,7 +112,7 @@ c_chromatic = Scale.chromatic(60)
 
 ```python
 from midigen import Song, Section, Key
-from midigen.compiler import MidiCompiler
+from midigen import MidiCompiler
 
 song = Song(key=Key("Am", "minor"), tempo=90)
 
@@ -217,6 +217,17 @@ track.add_chord(chord)
 
 midi.save("low_level.mid")
 ```
+
+## Architecture
+
+The library is organized into four layers:
+
+- **`midigen.theory`** — Pure music theory (Note, Key, Scale, roman numeral parsing, time conversion)
+- **`midigen.composition`** — Musical structures (Chord, ChordProgression, Arpeggio, Melody, DrumKit, Section)
+- **`midigen.protocol`** — MIDI protocol (Track, ChannelPool, instruments)
+- **`midigen.api`** — High-level API (Song, MidiGen, MidiCompiler)
+
+All public names are available via `from midigen import ...`.
 
 ## Contributing
 
