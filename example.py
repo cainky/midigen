@@ -1,13 +1,21 @@
+"""Low-level API example — build a track note by note."""
 from midigen import MidiGen, Note, Chord, Key, KEY_MAP
 
-midi_gen = MidiGen(tempo=120, time_signature=(4, 4), key_signature=Key("C"))
+midi = MidiGen(tempo=120, time_signature=(4, 4), key_signature=Key("C"))
+track = midi.get_active_track()
 
-note_c = Note(pitch=KEY_MAP["C4"], velocity=64, duration=480, time=0)
-note_e = Note(pitch=KEY_MAP["E4"], velocity=64, duration=480, time=0)
-note_g = Note(pitch=KEY_MAP["G4"], velocity=64, duration=480, time=0)
+# single notes
+track.add_note(Note(pitch=KEY_MAP["C4"], velocity=80, duration=480, time=0))
+track.add_note(Note(pitch=KEY_MAP["E4"], velocity=80, duration=480, time=480))
+track.add_note(Note(pitch=KEY_MAP["G4"], velocity=80, duration=480, time=960))
 
-c_major_chord = Chord([note_c, note_e, note_g])
+# a chord
+c_major = Chord([
+    Note(pitch=KEY_MAP["C4"], velocity=64, duration=960, time=1440),
+    Note(pitch=KEY_MAP["E4"], velocity=64, duration=960, time=1440),
+    Note(pitch=KEY_MAP["G4"], velocity=64, duration=960, time=1440),
+])
+track.add_chord(c_major)
 
-track = midi_gen.get_active_track()
-track.add_chord(c_major_chord)
-midi_gen.save("example.mid")
+midi.save("example.mid")
+print("Saved example.mid")
