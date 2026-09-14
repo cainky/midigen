@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/midigen-lib.svg)](https://badge.fury.io/py/midigen-lib)
 [![Tests](https://github.com/cainky/midigen/actions/workflows/tests.yml/badge.svg)](https://github.com/cainky/midigen/actions/workflows/tests.yml)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 A Python library for creating and manipulating MIDI files with a music-theory-aware API. Build anything from simple melodies to multi-track compositions with chord progressions, scales, and rhythmic patterns.
 
@@ -233,4 +233,4 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## License
 
-GPL-3.0. See [LICENSE](LICENSE).
+AGPL-3.0. See [LICENSE](LICENSE).
