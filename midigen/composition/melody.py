@@ -21,7 +21,12 @@ class Melody:
         Args:
             notes: List of Note objects
         """
-        self.notes = notes
+        self.notes = list(notes)
+        for note in self.notes:
+            if not isinstance(note, Note):
+                raise TypeError(
+                    f"Melody notes must be Note objects, got {type(note).__name__}: {note!r}"
+                )
 
     def get_notes(self) -> List[Note]:
         """Get the list of notes in the melody."""
@@ -35,8 +40,8 @@ class Melody:
         start_time: int = 0,
         note_duration: int = 480,
         velocity: int = 80,
-        octave_shift: int = 0
-    ) -> 'Melody':
+        octave_shift: int = 0,
+    ) -> "Melody":
         """
         Create a melody from a scale using a pattern of scale degrees.
 
@@ -69,17 +74,21 @@ class Melody:
 
         for degree in pattern:
             if degree < 0 or degree >= len(scale):
-                raise ValueError(f"Scale degree {degree} is out of range for scale with {len(scale)} notes")
+                raise ValueError(
+                    f"Scale degree {degree} is out of range for scale with {len(scale)} notes"
+                )
 
             pitch = scale[degree] + octave_shift_semitones
             if pitch < 0 or pitch > 127:
-                raise ValueError(f"Resulting pitch {pitch} is out of MIDI range (0-127)")
+                raise ValueError(
+                    f"Resulting pitch {pitch} is out of MIDI range (0-127)"
+                )
 
             note = Note(
                 pitch=pitch,
                 velocity=velocity,
                 duration=note_duration,
-                time=current_time
+                time=current_time,
             )
             notes.append(note)
             current_time += note_duration
@@ -92,8 +101,8 @@ class Melody:
         note_names: str,
         durations: Union[List[int], int] = 480,
         start_time: int = 0,
-        velocity: int = 80
-    ) -> 'Melody':
+        velocity: int = 80,
+    ) -> "Melody":
         """
         Create a melody from note names like "C4 E4 G4 C5".
 
@@ -122,19 +131,20 @@ class Melody:
             durations_list = [durations] * len(names)
         else:
             if len(durations) != len(names):
-                raise ValueError(f"Number of durations ({len(durations)}) must match number of notes ({len(names)})")
+                raise ValueError(
+                    f"Number of durations ({len(durations)}) must match number of notes ({len(names)})"
+                )
             durations_list = durations
 
         for name, duration in zip(names, durations_list):
             if name not in KEY_MAP:
-                raise ValueError(f"Invalid note name: {name}. Note must be in format like 'C4' or 'F#3'")
+                raise ValueError(
+                    f"Invalid note name: {name}. Note must be in format like 'C4' or 'F#3'"
+                )
 
             pitch = KEY_MAP[name]
             note = Note(
-                pitch=pitch,
-                velocity=velocity,
-                duration=duration,
-                time=current_time
+                pitch=pitch, velocity=velocity, duration=duration, time=current_time
             )
             notes.append(note)
             current_time += duration
@@ -148,8 +158,8 @@ class Melody:
         degrees: List[int],
         rhythms: Union[List[int], str] = 480,
         start_time: int = 0,
-        velocity: int = 80
-    ) -> 'Melody':
+        velocity: int = 80,
+    ) -> "Melody":
         """
         Create a melody from scale degrees (1-based, like music theory notation).
 
@@ -184,33 +194,49 @@ class Melody:
         if isinstance(rhythms, str):
             # Parse rhythm string
             rhythm_map = {
-                'w': 'whole', 'h': 'half', 'q': 'quarter',
-                'e': 'eighth', 's': 'sixteenth',
-                'whole': 'whole', 'half': 'half', 'quarter': 'quarter',
-                'eighth': 'eighth', 'sixteenth': 'sixteenth',
-                'dh': 'dotted_half', 'dq': 'dotted_quarter', 'de': 'dotted_eighth',
-                'dotted_half': 'dotted_half', 'dotted_quarter': 'dotted_quarter',
-                'dotted_eighth': 'dotted_eighth'
+                "w": "whole",
+                "h": "half",
+                "q": "quarter",
+                "e": "eighth",
+                "s": "sixteenth",
+                "whole": "whole",
+                "half": "half",
+                "quarter": "quarter",
+                "eighth": "eighth",
+                "sixteenth": "sixteenth",
+                "dh": "dotted_half",
+                "dq": "dotted_quarter",
+                "de": "dotted_eighth",
+                "dotted_half": "dotted_half",
+                "dotted_quarter": "dotted_quarter",
+                "dotted_eighth": "dotted_eighth",
             }
             rhythm_names = rhythms.strip().split()
             durations_list = []
             for r in rhythm_names:
                 r_lower = r.lower()
                 if r_lower not in rhythm_map:
-                    raise ValueError(f"Invalid rhythm: {r}. Use w, h, q, e, s or full names like 'quarter'")
+                    raise ValueError(
+                        f"Invalid rhythm: {r}. Use w, h, q, e, s or full names like 'quarter'"
+                    )
                 durations_list.append(tc.note_duration(rhythm_map[r_lower]))
 
             if len(durations_list) != len(degrees):
-                raise ValueError(f"Number of rhythms ({len(durations_list)}) must match number of degrees ({len(degrees)})")
+                raise ValueError(
+                    f"Number of rhythms ({len(durations_list)}) must match number of degrees ({len(degrees)})"
+                )
         elif isinstance(rhythms, int):
             durations_list = [rhythms] * len(degrees)
         else:
             if len(rhythms) != len(degrees):
-                raise ValueError(f"Number of rhythms ({len(rhythms)}) must match number of degrees ({len(degrees)})")
+                raise ValueError(
+                    f"Number of rhythms ({len(rhythms)}) must match number of degrees ({len(degrees)})"
+                )
             durations_list = rhythms
 
-        scale_length = len(scale) - 1  # Exclude octave note
-        base_octave_pitch = scale[0]
+        # Scales from Scale end with the octave (e.g. C4..C5); don't count it twice
+        has_octave = len(scale) > 1 and scale[-1] - scale[0] == 12
+        scale_length = len(scale) - 1 if has_octave else len(scale)
 
         for degree, duration in zip(degrees, durations_list):
             if degree == 0:
@@ -233,13 +259,12 @@ class Melody:
                 pitch = scale[scale_index] - (octave_offset * 12)
 
             if pitch < 0 or pitch > 127:
-                raise ValueError(f"Degree {degree} results in pitch {pitch}, which is out of MIDI range (0-127)")
+                raise ValueError(
+                    f"Degree {degree} results in pitch {pitch}, which is out of MIDI range (0-127)"
+                )
 
             note = Note(
-                pitch=pitch,
-                velocity=velocity,
-                duration=duration,
-                time=current_time
+                pitch=pitch, velocity=velocity, duration=duration, time=current_time
             )
             notes.append(note)
             current_time += duration
@@ -256,8 +281,8 @@ class Melody:
         duration: int = 480,
         start_time: int = 0,
         velocity: int = 80,
-        seed: int = None
-    ) -> 'Melody':
+        seed: int = None,
+    ) -> "Melody":
         """
         Generate a random melody using a random walk algorithm within a scale.
 
@@ -269,14 +294,25 @@ class Melody:
             duration: Duration of each note in ticks
             start_time: Starting time in ticks
             velocity: MIDI velocity for all notes
-            seed: Random seed for reproducibility (optional)
+            seed: Random seed for reproducibility (optional). A seeded walk uses its
+                own generator and leaves the global ``random`` state untouched; without
+                a seed the global generator is used.
 
         Returns:
             Melody object
         """
-        if seed is not None:
-            random.seed(seed)
+        rng = random.Random(seed) if seed is not None else random
 
+        if not isinstance(length, int) or isinstance(length, bool) or length < 0:
+            raise ValueError(f"Length must be a non-negative integer, got {length!r}")
+        if (
+            not isinstance(max_interval, int)
+            or isinstance(max_interval, bool)
+            or max_interval < 0
+        ):
+            raise ValueError(
+                f"max_interval must be a non-negative integer, got {max_interval!r}"
+            )
         if start_pitch not in scale:
             raise ValueError(f"Start pitch {start_pitch} is not in the provided scale")
 
@@ -290,13 +326,13 @@ class Melody:
                 pitch=current_pitch,
                 velocity=velocity,
                 duration=duration,
-                time=current_time
+                time=current_time,
             )
             notes.append(note)
             current_time += duration
 
             # Random walk: move up or down by a random interval within max_interval
-            step = random.randint(-max_interval, max_interval)
+            step = rng.randint(-max_interval, max_interval)
             new_index = current_index + step
 
             # Keep within scale bounds
@@ -306,7 +342,7 @@ class Melody:
 
         return cls(notes)
 
-    def transpose(self, semitones: int) -> 'Melody':
+    def transpose(self, semitones: int) -> "Melody":
         """
         Transpose the melody by a number of semitones.
 
@@ -320,32 +356,37 @@ class Melody:
         for note in self.notes:
             new_pitch = note.pitch + semitones
             if new_pitch < 0 or new_pitch > 127:
-                raise ValueError(f"Transposition results in pitch {new_pitch}, out of MIDI range")
+                raise ValueError(
+                    f"Transposition results in pitch {new_pitch}, out of MIDI range"
+                )
             transposed_notes.append(note + semitones)
         return Melody(transposed_notes)
 
-    def reverse(self) -> 'Melody':
+    def reverse(self) -> "Melody":
         """
         Reverse the melody (retrograde).
+
+        The melody is mirrored in time within its own span, so rests and
+        overlaps are kept and the reversed melody starts where the original did.
 
         Returns:
             New Melody object with notes in reverse order
         """
-        reversed_notes = []
-        total_duration = sum(n.duration for n in self.notes)
-        start_time = self.notes[0].time if self.notes else 0
+        if not self.notes:
+            return Melody([])
 
-        current_time = start_time
-        for note in reversed(self.notes):
-            new_note = Note(
-                pitch=note.pitch,
-                velocity=note.velocity,
-                duration=note.duration,
-                time=current_time
+        start = min(note.time for note in self.notes)
+        end = max(note.time + note.duration for note in self.notes)
+        reversed_notes = [
+            Note(
+                note.pitch,
+                note.velocity,
+                note.duration,
+                start + end - (note.time + note.duration),
             )
-            reversed_notes.append(new_note)
-            current_time += note.duration
-
+            for note in reversed(self.notes)
+        ]
+        reversed_notes.sort(key=lambda note: note.time)
         return Melody(reversed_notes)
 
     def __len__(self) -> int:

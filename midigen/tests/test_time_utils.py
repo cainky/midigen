@@ -52,7 +52,9 @@ class TestTimeConverter(unittest.TestCase):
 
     def test_measures_to_ticks_3_4_time(self):
         """Test converting measures in 3/4 time to ticks"""
-        self.assertEqual(self.tc.measures_to_ticks(1, 3, 4), 1440)  # 3 beats * 480 ticks
+        self.assertEqual(
+            self.tc.measures_to_ticks(1, 3, 4), 1440
+        )  # 3 beats * 480 ticks
         self.assertEqual(self.tc.measures_to_ticks(2, 3, 4), 2880)
 
     def test_measures_to_ticks_6_8_time(self):

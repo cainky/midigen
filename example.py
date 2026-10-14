@@ -1,8 +1,18 @@
 """midigen example — a few ways to make MIDI."""
 from midigen import (
-    Song, Section, Key, MidiCompiler,
-    MidiGen, Note, Chord, Scale, Melody,
-    DrumKit, Arpeggio, ArpeggioPattern, KEY_MAP,
+    Song,
+    Section,
+    Key,
+    MidiCompiler,
+    MidiGen,
+    Note,
+    Chord,
+    Scale,
+    Melody,
+    DrumKit,
+    Arpeggio,
+    ArpeggioPattern,
+    KEY_MAP,
 )
 
 # --- 1. Song API: compose with chord progressions ---
@@ -23,16 +33,17 @@ track = midi.get_active_track()
 # melody from a scale
 scale = Scale.major(KEY_MAP["G4"])
 melody = Melody.from_degrees(scale, degrees=[1, 3, 5, 8, 5, 3, 1], rhythms=480)
-for note in melody.get_notes():
-    track.add_note(note)
+track.add_melody(melody)
 
 # a chord after the melody
 start = len(melody.get_notes()) * 480
-chord = Chord([
-    Note(KEY_MAP["G4"], 70, 960, start),
-    Note(KEY_MAP["B4"], 70, 960, start),
-    Note(KEY_MAP["D5"], 70, 960, start),
-])
+chord = Chord(
+    [
+        Note(KEY_MAP["G4"], 70, 960, start),
+        Note(KEY_MAP["B4"], 70, 960, start),
+        Note(KEY_MAP["D5"], 70, 960, start),
+    ]
+)
 track.add_chord(chord)
 
 midi.save("melody_and_chord.mid")
@@ -41,7 +52,7 @@ print("melody_and_chord.mid - done")
 # --- 3. Drums ---
 
 drum_midi = MidiGen(tempo=120, key_signature=Key("C"))
-drum_track = drum_midi.get_active_track()
+drum_track = drum_midi.add_track(channel=9)  # GM drums play on channel 9
 
 kit = DrumKit()
 for i in range(4):

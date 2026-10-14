@@ -1,6 +1,7 @@
 from midigen.theory.key import Key, VALID_KEYS
 import unittest
 
+
 class TestKey(unittest.TestCase):
     def test_repr(self):
         for note, mode in VALID_KEYS:

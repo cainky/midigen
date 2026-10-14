@@ -52,19 +52,23 @@ GM1_DRUM_MAP = {
 }
 
 
+def _normalize_drum_name(name: str) -> str:
+    return "".join(ch for ch in name.lower() if ch.isalnum())
+
+
+# Lookup that ignores case, spaces and hyphens: "open hi hat" finds "Open Hi-Hat"
+_DRUM_LOOKUP = {
+    _normalize_drum_name(name): pitch for name, pitch in GM1_DRUM_MAP.items()
+}
+
+
 class Drum:
     """
     A drum sound in a drum kit, represented as a MIDI note.
     """
 
     def __init__(self, pitch: int, velocity: int, duration: int, time: int):
-        if duration < 0:
-            raise ValueError("Duration must be non-negative")
-        if velocity < 0:
-            raise ValueError("Velocity must be non-negative")
-        if not 0 <= pitch <= 127:
-            raise ValueError("Pitch must be within the MIDI standard range of 0 to 127")
-
+        # Note validates pitch/velocity (0-127) and duration/time (non-negative ints)
         self.note = Note(pitch, velocity, duration, time)
 
 
@@ -82,23 +86,29 @@ class DrumKit:
         """
         Add a drum to the drum kit.
 
-        :param drum_name: The name of the drum, as defined in the GM1_DRUM_MAP.
+        :param drum_name: The name of the drum, as defined in the GM1_DRUM_MAP. Case, spaces
+                          and hyphens are ignored, so "open hi hat" finds "Open Hi-Hat".
         :param velocity: The velocity of the drum sound.
         :param duration: The duration of the drum sound.
         :param time: The time at which the drum sound should start.
         """
-        if drum_name not in GM1_DRUM_MAP:
+        pitch = (
+            _DRUM_LOOKUP.get(_normalize_drum_name(drum_name))
+            if isinstance(drum_name, str)
+            else None
+        )
+        if pitch is None:
             raise ValueError(
                 f"Invalid drum name: {drum_name}. Please use a valid drum name from the GM1_DRUM_MAP."
             )
 
-        drum = Drum(GM1_DRUM_MAP[drum_name], velocity, duration, time)
+        drum = Drum(pitch, velocity, duration, time)
         self.drums.append(drum)
 
     def get_drums(self) -> List[Note]:
         """
-        Get the list of drums in the drum kit.
+        Get the drum hits in the drum kit.
 
-        :return: A list of Drum objects.
+        :return: A list of Note objects, one per hit.
         """
         return [drum.note for drum in self.drums]

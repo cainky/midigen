@@ -72,12 +72,13 @@ class TestGoldenMaster(unittest.TestCase):
             golden_path.write_bytes(output)
             self.skipTest(f"Golden file '{golden_name}' regenerated")
 
-        if not golden_path.exists():
-            golden_path.write_bytes(output)
-            self.skipTest(
-                f"Golden file '{golden_name}' created. "
-                f"Run again to verify, or review the file manually."
-            )
+        # A missing golden file is a failure, not a skip: silently creating it
+        # would make the test pass on any fresh checkout (e.g. CI).
+        self.assertTrue(
+            golden_path.exists(),
+            f"Golden file '{golden_name}' is missing. Run with REGENERATE_GOLDEN=1 to create it, "
+            f"verify it, and commit it.",
+        )
 
         expected = golden_path.read_bytes()
         expected_hash = hash_bytes(expected)
@@ -89,7 +90,7 @@ class TestGoldenMaster(unittest.TestCase):
             f"MIDI output mismatch for {description}.\n"
             f"Expected hash: {expected_hash}\n"
             f"Actual hash:   {actual_hash}\n"
-            f"Run with REGENERATE_GOLDEN=1 to update if change is intentional."
+            f"Run with REGENERATE_GOLDEN=1 to update if change is intentional.",
         )
 
     def test_simple_c_major_chord(self):
@@ -136,7 +137,9 @@ class TestGoldenMaster(unittest.TestCase):
         track.add_note(Note(pitch=72, velocity=80, duration=480, time=1440))
 
         output = get_midi_bytes(midi)
-        self._compare_or_regenerate(output, "overlapping_notes.mid", "overlapping notes")
+        self._compare_or_regenerate(
+            output, "overlapping_notes.mid", "overlapping notes"
+        )
 
     def test_song_progression_i_v_vi_iv(self):
         """Test the classic I-V-vi-IV progression."""
@@ -164,14 +167,18 @@ class TestGoldenMaster(unittest.TestCase):
         melody_track.add_note(Note(pitch=74, velocity=80, duration=960, time=960))
 
         # Track 1: Bass
-        midi.add_track()
+        midi.add_track(channel=1)
         bass_track = midi.tracks[1]
-        bass_track.add_program_change(channel=1, program=32)  # Acoustic Bass
+        bass_track.add_program_change(
+            program=32
+        )  # Acoustic Bass on the track's channel
         bass_track.add_note(Note(pitch=43, velocity=90, duration=960, time=0))
         bass_track.add_note(Note(pitch=47, velocity=90, duration=960, time=960))
 
         output = get_midi_bytes(midi)
-        self._compare_or_regenerate(output, "multi_track.mid", "multi-track arrangement")
+        self._compare_or_regenerate(
+            output, "multi_track.mid", "multi-track arrangement"
+        )
 
     def test_zero_duration_note_edge_case(self):
         """Test handling of zero-duration notes (edge case)."""

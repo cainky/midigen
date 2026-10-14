@@ -84,7 +84,7 @@ class TestChannelPool(unittest.TestCase):
 
     def test_release(self):
         """Test releasing a channel."""
-        ch1 = self.pool.allocate("Piano")
+        self.pool.allocate("Piano")
         self.pool.allocate("Bass")
 
         self.assertEqual(self.pool.available_count, 13)
@@ -97,7 +97,7 @@ class TestChannelPool(unittest.TestCase):
 
     def test_release_and_reallocate(self):
         """Test that released channel can be reallocated."""
-        ch1 = self.pool.allocate("Piano")
+        self.pool.allocate("Piano")
         self.pool.allocate("Bass")
         self.pool.allocate("Guitar")
 

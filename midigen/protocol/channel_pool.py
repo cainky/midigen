@@ -11,6 +11,7 @@ from typing import Set, Dict, Optional
 
 class ChannelExhaustedError(Exception):
     """Raised when no MIDI channels are available for allocation."""
+
     pass
 
 

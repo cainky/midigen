@@ -6,7 +6,12 @@ Thank you for your interest in contributing to MidiGen! Whether it's reporting b
 
 - Fork the repository on GitHub.
 - Clone your forked repository to your local machine.
-- Set up your environment and make sure that the tests pass. 
+- Set up your environment with [uv](https://docs.astral.sh/uv/) and make sure that the tests pass:
+
+```bash
+uv sync
+uv run pytest
+```
 
 ## Reporting Issues
 
@@ -32,6 +37,20 @@ Please adhere to the coding conventions used throughout the project. In particul
 
 - Use proper variable naming conventions.
 - Comment your code where necessary.
+- Format with black and keep flake8 clean (CI checks both):
+
+```bash
+uv run flake8 midigen example.py
+uv run --with black==23.3.0 black midigen example.py
+```
+
+Or run every check before committing with `uv run pre-commit run --all-files`.
+
+### Tests and docs
+
+- Bug fixes should come with a test that fails without the fix (see `midigen/tests/test_regressions.py`).
+- The Python examples in `README.md` and `index.html`, and `example.py`, are run by `midigen/tests/test_docs.py`, so update them when you change the API.
+- `midigen/tests/golden_files/` holds reference MIDI files compared byte for byte. If a change to the output is intended, regenerate them with `REGENERATE_GOLDEN=1 uv run pytest midigen/tests/test_golden_master.py`, check the new files, and commit them.
 
 ## Pull Requests
 

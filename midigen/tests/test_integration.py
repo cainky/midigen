@@ -13,14 +13,13 @@ class TestIntegration(unittest.TestCase):
         # Track 0: Melody (use active track which is track 0)
         melody_track = midi.get_active_track()
         melody_notes = [
-            Note(pitch=60, velocity=80, duration=480, time=0),      # C
-            Note(pitch=64, velocity=80, duration=480, time=480),    # E
-            Note(pitch=67, velocity=80, duration=480, time=960),    # G
-            Note(pitch=72, velocity=80, duration=480, time=1440),   # C (octave up)
+            Note(pitch=60, velocity=80, duration=480, time=0),  # C
+            Note(pitch=64, velocity=80, duration=480, time=480),  # E
+            Note(pitch=67, velocity=80, duration=480, time=960),  # G
+            Note(pitch=72, velocity=80, duration=480, time=1440),  # C (octave up)
         ]
         for note in melody_notes:
             melody_track.add_note(note)
-
 
         # Track 1: Chord progression
         midi.add_track()
@@ -32,13 +31,12 @@ class TestIntegration(unittest.TestCase):
             progression_string="I-V-vi-IV",
             octave=3,
             duration=480,
-            time_per_chord=480
+            time_per_chord=480,
         )
         chord_track.add_chord_progression(progression)
 
-
-        # Track 2: Drums
-        midi.add_track()
+        # Track 2: Drums (General MIDI drums are on channel 9)
+        midi.add_track(channel=9)
         drum_track = midi.tracks[2]  # Access track directly
 
         drum_kit = DrumKit()
@@ -49,7 +47,6 @@ class TestIntegration(unittest.TestCase):
         drum_kit.add_drum("Acoustic Snare", velocity=80, duration=240, time=1440)
 
         drum_track.add_drum_kit(drum_kit)
-
 
         # Verify tracks were created (includes default track 0)
         self.assertEqual(len(midi.tracks), 3)
@@ -103,14 +100,13 @@ class TestIntegration(unittest.TestCase):
         track = midi.get_active_track()
 
         # Create overlapping notes
-        note1 = Note(pitch=60, velocity=64, duration=960, time=0)      # Long C
-        note2 = Note(pitch=64, velocity=64, duration=480, time=480)    # E starts during C
-        note3 = Note(pitch=67, velocity=64, duration=480, time=480)    # G starts with E
+        note1 = Note(pitch=60, velocity=64, duration=960, time=0)  # Long C
+        note2 = Note(pitch=64, velocity=64, duration=480, time=480)  # E starts during C
+        note3 = Note(pitch=67, velocity=64, duration=480, time=480)  # G starts with E
 
         track.add_note(note1)
         track.add_note(note2)
         track.add_note(note3)
-
 
         # Verify all notes were added
         self.assertEqual(len(track.notes), 3)
@@ -131,7 +127,9 @@ class TestIntegration(unittest.TestCase):
         track.add_chord(chord)
 
         # Add notes after a "rest" (gap in time)
-        rest_note = Note(pitch=60, velocity=70, duration=240, time=960)  # Gap from 480-960
+        rest_note = Note(
+            pitch=60, velocity=70, duration=240, time=960
+        )  # Gap from 480-960
         track.add_note(rest_note)
 
         # Add another chord
@@ -139,10 +137,10 @@ class TestIntegration(unittest.TestCase):
         chord2 = Chord.create_major_triad(root2)
         track.add_chord(chord2)
 
-
-
         # Verify timing structure
-        self.assertEqual(len(track.notes), 7)  # 3 from first chord + 1 note + 3 from second chord
+        self.assertEqual(
+            len(track.notes), 7
+        )  # 3 from first chord + 1 note + 3 from second chord
 
         # Verify first chord notes all start at time 0
         self.assertEqual(track.notes[0].time, 0)

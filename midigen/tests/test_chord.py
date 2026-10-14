@@ -1,5 +1,5 @@
 from midigen.theory.note import Note
-from midigen.theory.key import KEY_MAP
+from midigen.theory.key import Key, KEY_MAP
 from midigen.composition.chord import Chord, CHORD_TYPES
 from midigen.composition.progression import ChordProgression
 from midigen.composition.arpeggio import Arpeggio, ArpeggioPattern
@@ -152,10 +152,8 @@ class TestChordProgression(unittest.TestCase):
         self.assertEqual(self.progression.chords[-1], new_chord)
 
     def test_duration_calculation(self):
-        expected_duration = (
-            self.chord1._calculate_duration() + self.chord2._calculate_duration()
-        )
-        self.assertEqual(self.progression.duration, expected_duration)
+        # Both chords start at 0 and last 100 ticks, so the progression spans 100 ticks
+        self.assertEqual(self.progression.duration, 100)
 
     def test_start_time_calculation(self):
         expected_start_time = min(
@@ -251,15 +249,12 @@ class TestArpeggio(unittest.TestCase):
         # Should have 9 notes total (3 notes x 3 loops)
         self.assertEqual(len(sequential_notes), 9)
         # Verify timing of first note in each loop
-        self.assertEqual(sequential_notes[0].time, 0)      # Loop 1
-        self.assertEqual(sequential_notes[3].time, 150)    # Loop 2
-        self.assertEqual(sequential_notes[6].time, 300)    # Loop 3
+        self.assertEqual(sequential_notes[0].time, 0)  # Loop 1
+        self.assertEqual(sequential_notes[3].time, 150)  # Loop 2
+        self.assertEqual(sequential_notes[6].time, 300)  # Loop 3
 
-
-from midigen.theory.key import Key
 
 class TestChordProgressionFromRomanNumerals(unittest.TestCase):
-
     def test_from_roman_numerals_major(self):
         key = Key("C", "major")
         progression = ChordProgression.from_roman_numerals(
@@ -267,7 +262,7 @@ class TestChordProgressionFromRomanNumerals(unittest.TestCase):
             progression_string="I-V-vi-IV",
             octave=4,
             duration=480,
-            time_per_chord=480
+            time_per_chord=480,
         )
         self.assertEqual(len(progression.chords), 4)
 
@@ -283,7 +278,7 @@ class TestChordProgressionFromRomanNumerals(unittest.TestCase):
             progression_string="i-iv-v",
             octave=4,
             duration=480,
-            time_per_chord=480
+            time_per_chord=480,
         )
         self.assertEqual(len(progression.chords), 3)
 
@@ -299,15 +294,11 @@ class TestChordProgressionFromRomanNumerals(unittest.TestCase):
             progression_string="I-V",
             octave=4,
             duration=480,
-            time_per_chord=480
+            time_per_chord=480,
         )
 
-        chord1_time = progression.chords[0].time
-        chord2_time = progression.chords[1].time
-
-        self.assertEqual(chord1_time, 0)
-        # This is tricky because the time is distributed among the notes.
-        # The first note of the second chord should have the time of the first chord's duration.
+        self.assertEqual(progression.chords[0].time, 0)
+        self.assertEqual(progression.chords[1].time, 480)
         self.assertEqual(progression.chords[1].notes[0].time, 480)
 
 
@@ -320,8 +311,9 @@ class TestChordBuild(unittest.TestCase):
         for chord_type, intervals in CHORD_TYPES.items():
             chord = Chord.build(chord_type, self.root)
             self.assertEqual(
-                len(chord.notes), len(intervals),
-                f"Chord.build('{chord_type}') produced {len(chord.notes)} notes, expected {len(intervals)}"
+                len(chord.notes),
+                len(intervals),
+                f"Chord.build('{chord_type}') produced {len(chord.notes)} notes, expected {len(intervals)}",
             )
 
     def test_build_intervals_match(self):
@@ -331,8 +323,9 @@ class TestChordBuild(unittest.TestCase):
             root_pitch = self.root.pitch
             actual_intervals = tuple(n.pitch - root_pitch for n in chord.notes)
             self.assertEqual(
-                actual_intervals, intervals,
-                f"Chord.build('{chord_type}') intervals {actual_intervals} != {intervals}"
+                actual_intervals,
+                intervals,
+                f"Chord.build('{chord_type}') intervals {actual_intervals} != {intervals}",
             )
 
     def test_build_invalid_type_raises(self):
@@ -344,9 +337,8 @@ class TestChordBuild(unittest.TestCase):
         """Chord.build() produces same result as named create_* methods."""
         self.assertEqual(
             Chord.create_major_triad(self.root).notes,
-            Chord.build("major_triad", self.root).notes
+            Chord.build("major_triad", self.root).notes,
         )
         self.assertEqual(
-            Chord.create_sus2(self.root).notes,
-            Chord.build("sus2", self.root).notes
+            Chord.create_sus2(self.root).notes, Chord.build("sus2", self.root).notes
         )

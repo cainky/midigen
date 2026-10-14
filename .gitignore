@@ -1,6 +1,7 @@
 .claude/**
 **/.vscode
 **/*.mid
+!midigen/tests/golden_files/*.mid
 generate/*.*
 
 # Byte-compiled / optimized / DLL files

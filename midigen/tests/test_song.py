@@ -171,7 +171,7 @@ class TestMidiCompiler(unittest.TestCase):
         # Check for program change message
         has_program_change = False
         for msg in track.track:
-            if msg.type == 'program_change' and msg.program == 0:
+            if msg.type == "program_change" and msg.program == 0:
                 has_program_change = True
                 break
         self.assertTrue(has_program_change)

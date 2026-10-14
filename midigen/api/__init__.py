@@ -3,3 +3,9 @@
 from midigen.api.song import Song
 from midigen.api.midigen import MidiGen
 from midigen.api.compiler import MidiCompiler
+
+__all__ = [
+    "Song",
+    "MidiGen",
+    "MidiCompiler",
+]

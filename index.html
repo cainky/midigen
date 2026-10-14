@@ -194,7 +194,7 @@
             <div class="badges">
                 <span class="badge">Python 3.10+</span>
                 <span class="badge">Music Theory</span>
-                <span class="badge">17+ Scales</span>
+                <span class="badge">14 Scales</span>
                 <span class="badge">AGPL-3.0</span>
             </div>
             <div class="buttons">
@@ -224,17 +224,17 @@
                 <div class="feature">
                     <div class="feature-icon">🎼</div>
                     <h3>Chord Progressions</h3>
-                    <p>Roman numeral notation (I-V-vi-IV) with automatic voice leading and inversions.</p>
+                    <p>Roman numeral notation (I-V-vi-IV) with sevenths, diminished, augmented and borrowed chords like bVII.</p>
                 </div>
                 <div class="feature">
                     <div class="feature-icon">🎹</div>
-                    <h3>17+ Scales</h3>
+                    <h3>14 Scales</h3>
                     <p>Major, minor, modes, pentatonic, blues, whole-tone, chromatic, and more.</p>
                 </div>
                 <div class="feature">
                     <div class="feature-icon">🥁</div>
                     <h3>Drum Programming</h3>
-                    <p>DrumKit class with human-readable names like "Bass Drum 1" and "Hi Hat".</p>
+                    <p>DrumKit class with human-readable names like "Bass Drum 1" and "Closed Hi Hat".</p>
                 </div>
                 <div class="feature">
                     <div class="feature-icon">🎸</div>
@@ -260,8 +260,7 @@
             <h2 class="section-title">Quick Start</h2>
             <div class="code-block">
                 <div class="code-header">create_song.py</div>
-                <pre><code><span class="keyword">from</span> midigen <span class="keyword">import</span> Song, Section, Key
-<span class="keyword">from</span> midigen.compiler <span class="keyword">import</span> MidiCompiler
+                <pre><code><span class="keyword">from</span> midigen <span class="keyword">import</span> Song, Section, Key, MidiCompiler
 
 <span class="comment"># Create a song in C major at 120 BPM</span>
 song = Song(key=Key(<span class="string">"C"</span>, <span class="string">"major"</span>), tempo=<span class="string">120</span>)
@@ -302,9 +301,6 @@ compiler.<span class="function">compile</span>().<span class="function">save</sp
                 <span class="scale-tag">Blues</span>
                 <span class="scale-tag">Whole Tone</span>
                 <span class="scale-tag">Chromatic</span>
-                <span class="scale-tag">Diminished</span>
-                <span class="scale-tag">Augmented</span>
-                <span class="scale-tag">Bebop Dominant</span>
             </div>
         </div>
     </section>

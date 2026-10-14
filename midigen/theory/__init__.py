@@ -15,3 +15,23 @@ from midigen.theory.roman import (
     MAJOR_SCALE_SEMITONES,
     MINOR_SCALE_SEMITONES,
 )
+
+__all__ = [
+    "Note",
+    "NOTE_ON",
+    "NOTE_OFF",
+    "Key",
+    "KEY_MAP",
+    "VALID_KEYS",
+    "Scale",
+    "TimeConverter",
+    "ChordQuality",
+    "ParsedRomanNumeral",
+    "parse_roman_numeral",
+    "get_root_pitch",
+    "get_chord_pitches",
+    "get_note_names_for_pitches",
+    "CHORD_INTERVALS",
+    "MAJOR_SCALE_SEMITONES",
+    "MINOR_SCALE_SEMITONES",
+]

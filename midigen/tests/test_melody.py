@@ -9,11 +9,7 @@ class TestMelody(unittest.TestCase):
 
     def test_melody_initialization(self):
         """Test basic melody initialization"""
-        notes = [
-            Note(60, 80, 480, 0),
-            Note(64, 80, 480, 480),
-            Note(67, 80, 480, 960)
-        ]
+        notes = [Note(60, 80, 480, 0), Note(64, 80, 480, 480), Note(67, 80, 480, 960)]
         melody = Melody(notes)
         self.assertEqual(len(melody), 3)
         self.assertEqual(melody.get_notes(), notes)
@@ -34,11 +30,7 @@ class TestMelody(unittest.TestCase):
         """Test melody from scale with custom parameters"""
         pattern = [0, 1, 2]
         melody = Melody.from_scale(
-            self.c_major_scale,
-            pattern,
-            start_time=960,
-            note_duration=240,
-            velocity=100
+            self.c_major_scale, pattern, start_time=960, note_duration=240, velocity=100
         )
 
         self.assertEqual(melody[0].time, 960)
@@ -103,7 +95,9 @@ class TestMelody(unittest.TestCase):
             Melody.from_note_names("C4 InvalidNote G4")
 
         with self.assertRaises(ValueError):
-            Melody.from_note_names("C4 E4", durations=[480, 240, 960])  # Mismatched lengths
+            Melody.from_note_names(
+                "C4 E4", durations=[480, 240, 960]
+            )  # Mismatched lengths
 
     def test_from_degrees_basic(self):
         """Test melody from scale degrees (1-based)"""
@@ -128,7 +122,9 @@ class TestMelody(unittest.TestCase):
     def test_from_degrees_with_rhythm_string(self):
         """Test from_degrees with rhythm string"""
         degrees = [1, 3, 5]
-        melody = Melody.from_degrees(self.c_major_scale, degrees, rhythms="quarter half whole")
+        melody = Melody.from_degrees(
+            self.c_major_scale, degrees, rhythms="quarter half whole"
+        )
 
         self.assertEqual(melody[0].duration, 480)  # Quarter note
         self.assertEqual(melody[1].duration, 960)  # Half note
@@ -169,7 +165,7 @@ class TestMelody(unittest.TestCase):
             length=10,
             scale=self.c_major_scale,
             max_interval=3,
-            seed=42  # For reproducibility
+            seed=42,  # For reproducibility
         )
 
         self.assertEqual(len(melody), 10)
@@ -185,7 +181,7 @@ class TestMelody(unittest.TestCase):
             Melody.random_walk(
                 start_pitch=61,  # Not in C major scale
                 length=5,
-                scale=self.c_major_scale
+                scale=self.c_major_scale,
             )
 
     def test_transpose_up(self):

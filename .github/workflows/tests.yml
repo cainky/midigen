@@ -13,6 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -21,10 +27,32 @@ jobs:
       uses: astral-sh/setup-uv@v4
 
     - name: Set up Python
-      run: uv python install 3.10
+      run: uv python install ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: uv sync
 
     - name: Run tests
-      run: uv run pytest
+      run: uv run pytest -W error::UserWarning
+
+  lint:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      UV_PYTHON: "3.10"
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+
+    - name: Install dependencies
+      run: uv sync
+
+    - name: flake8
+      run: uv run flake8 midigen example.py
+
+    - name: black
+      run: uv run --with black==23.3.0 black --check midigen example.py

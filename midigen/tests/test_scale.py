@@ -152,7 +152,7 @@ class TestScale(unittest.TestCase):
         self.assertEqual(scale[0], root)
         # All intervals should be 2 semitones (whole steps)
         for i in range(len(scale) - 1):
-            self.assertEqual(scale[i+1] - scale[i], 2)
+            self.assertEqual(scale[i + 1] - scale[i], 2)
 
     def test_chromatic_scale(self):
         """Test chromatic scale"""
@@ -163,7 +163,7 @@ class TestScale(unittest.TestCase):
         self.assertEqual(scale[0], root)
         # All intervals should be 1 semitone (half steps)
         for i in range(len(scale) - 1):
-            self.assertEqual(scale[i+1] - scale[i], 1)
+            self.assertEqual(scale[i + 1] - scale[i], 1)
 
     def test_scale_boundary_check(self):
         """Test that scales stop at MIDI limit (127)"""

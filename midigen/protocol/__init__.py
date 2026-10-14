@@ -3,3 +3,11 @@
 from midigen.protocol.track import Track, MAX_MIDI_TICKS
 from midigen.protocol.channel_pool import ChannelPool, ChannelExhaustedError
 from midigen.protocol.instruments import INSTRUMENT_MAP
+
+__all__ = [
+    "Track",
+    "MAX_MIDI_TICKS",
+    "ChannelPool",
+    "ChannelExhaustedError",
+    "INSTRUMENT_MAP",
+]

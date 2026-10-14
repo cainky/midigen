@@ -6,3 +6,16 @@ from midigen.composition.arpeggio import Arpeggio, ArpeggioPattern
 from midigen.composition.melody import Melody
 from midigen.composition.drums import DrumKit, Drum, GM1_DRUM_MAP
 from midigen.composition.section import Section
+
+__all__ = [
+    "Chord",
+    "CHORD_TYPES",
+    "ChordProgression",
+    "Arpeggio",
+    "ArpeggioPattern",
+    "Melody",
+    "DrumKit",
+    "Drum",
+    "GM1_DRUM_MAP",
+    "Section",
+]

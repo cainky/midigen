@@ -35,7 +35,12 @@ CHORD_TYPES = {
 
 class Chord:
     def __init__(self, notes: List[Note]):
-        self.notes = notes
+        self.notes = list(notes)
+        for note in self.notes:
+            if not isinstance(note, Note):
+                raise TypeError(
+                    f"Chord notes must be Note objects, got {type(note).__name__}: {note!r}"
+                )
         self.root = self.get_root()
         self._calculate_start_time()
         self._calculate_duration()
@@ -43,20 +48,35 @@ class Chord:
     def __str__(self) -> str:
         return f"[{', '.join(str(note) for note in self.notes)}]"
 
+    def __repr__(self) -> str:
+        return f"Chord({self.notes!r})"
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Chord):
+            return NotImplemented
+        return self.notes == other.notes
+
     def _calculate_start_time(self) -> int:
         self.time = min(note.time for note in self.notes) if self.notes else 0
         return self.time
 
     def _calculate_duration(self) -> int:
         if not self.notes:
-            return 0
+            self.duration = 0
+            return self.duration
         earliest_start_time = min(note.time for note in self.notes)
         latest_end_time = max(note.time + note.duration for note in self.notes)
         self.duration = latest_end_time - earliest_start_time
         return self.duration
 
     def add_note(self, note: Note) -> None:
+        if not isinstance(note, Note):
+            raise TypeError(
+                f"Chord notes must be Note objects, got {type(note).__name__}: {note!r}"
+            )
         self.notes.append(note)
+        if self.root is None:
+            self.root = note
         self._calculate_duration()
         self._calculate_start_time()
 
@@ -104,7 +124,7 @@ class Chord:
     # Data-driven factory
 
     @classmethod
-    def build(cls, chord_type: str, root: Note) -> 'Chord':
+    def build(cls, chord_type: str, root: Note) -> "Chord":
         """Build a chord from a type name and root note.
 
         Args:
@@ -124,136 +144,136 @@ class Chord:
     # Named factory wrappers (backwards-compatible API)
 
     @classmethod
-    def create_major_triad(cls, root: Note) -> 'Chord':
+    def create_major_triad(cls, root: Note) -> "Chord":
         """Create a major triad chord from a root note."""
         return cls.build("major_triad", root)
 
     @classmethod
-    def create_minor_triad(cls, root: Note) -> 'Chord':
+    def create_minor_triad(cls, root: Note) -> "Chord":
         """Create a minor triad chord from a root note."""
         return cls.build("minor_triad", root)
 
     @classmethod
-    def create_dominant_seventh(cls, root: Note) -> 'Chord':
+    def create_dominant_seventh(cls, root: Note) -> "Chord":
         """Create a dominant seventh chord from a root note."""
         return cls.build("dominant_seventh", root)
 
     @classmethod
-    def create_major_seventh(cls, root: Note) -> 'Chord':
+    def create_major_seventh(cls, root: Note) -> "Chord":
         """Create a major seventh chord from a root note."""
         return cls.build("major_seventh", root)
 
     @classmethod
-    def create_minor_seventh(cls, root: Note) -> 'Chord':
+    def create_minor_seventh(cls, root: Note) -> "Chord":
         """Create a minor seventh chord from a root note."""
         return cls.build("minor_seventh", root)
 
     @classmethod
-    def create_half_diminished_seventh(cls, root: Note) -> 'Chord':
+    def create_half_diminished_seventh(cls, root: Note) -> "Chord":
         """Create a half-diminished seventh chord from a root note."""
         return cls.build("half_diminished_seventh", root)
 
     @classmethod
-    def create_diminished_seventh(cls, root: Note) -> 'Chord':
+    def create_diminished_seventh(cls, root: Note) -> "Chord":
         """Create a diminished seventh chord from a root note."""
         return cls.build("diminished_seventh", root)
 
     @classmethod
-    def create_minor_ninth(cls, root: Note) -> 'Chord':
+    def create_minor_ninth(cls, root: Note) -> "Chord":
         """Create a minor ninth chord from a root note."""
         return cls.build("minor_ninth", root)
 
     @classmethod
-    def create_major_ninth(cls, root: Note) -> 'Chord':
+    def create_major_ninth(cls, root: Note) -> "Chord":
         """Create a major ninth chord from a root note."""
         return cls.build("major_ninth", root)
 
     @classmethod
-    def create_dominant_ninth(cls, root: Note) -> 'Chord':
+    def create_dominant_ninth(cls, root: Note) -> "Chord":
         """Create a dominant ninth chord from a root note."""
         return cls.build("dominant_ninth", root)
 
     @classmethod
-    def create_sus2(cls, root: Note) -> 'Chord':
+    def create_sus2(cls, root: Note) -> "Chord":
         """Create a suspended 2nd chord from a root note."""
         return cls.build("sus2", root)
 
     @classmethod
-    def create_sus4(cls, root: Note) -> 'Chord':
+    def create_sus4(cls, root: Note) -> "Chord":
         """Create a suspended 4th chord from a root note."""
         return cls.build("sus4", root)
 
     @classmethod
-    def create_augmented(cls, root: Note) -> 'Chord':
+    def create_augmented(cls, root: Note) -> "Chord":
         """Create an augmented triad from a root note."""
         return cls.build("augmented", root)
 
     @classmethod
-    def create_diminished(cls, root: Note) -> 'Chord':
+    def create_diminished(cls, root: Note) -> "Chord":
         """Create a diminished triad from a root note."""
         return cls.build("diminished", root)
 
     @classmethod
-    def create_major_sixth(cls, root: Note) -> 'Chord':
+    def create_major_sixth(cls, root: Note) -> "Chord":
         """Create a major 6th chord from a root note."""
         return cls.build("major_sixth", root)
 
     @classmethod
-    def create_minor_sixth(cls, root: Note) -> 'Chord':
+    def create_minor_sixth(cls, root: Note) -> "Chord":
         """Create a minor 6th chord from a root note."""
         return cls.build("minor_sixth", root)
 
     @classmethod
-    def create_dominant_eleventh(cls, root: Note) -> 'Chord':
+    def create_dominant_eleventh(cls, root: Note) -> "Chord":
         """Create a dominant 11th chord from a root note."""
         return cls.build("dominant_eleventh", root)
 
     @classmethod
-    def create_major_eleventh(cls, root: Note) -> 'Chord':
+    def create_major_eleventh(cls, root: Note) -> "Chord":
         """Create a major 11th chord from a root note."""
         return cls.build("major_eleventh", root)
 
     @classmethod
-    def create_minor_eleventh(cls, root: Note) -> 'Chord':
+    def create_minor_eleventh(cls, root: Note) -> "Chord":
         """Create a minor 11th chord from a root note."""
         return cls.build("minor_eleventh", root)
 
     @classmethod
-    def create_dominant_thirteenth(cls, root: Note) -> 'Chord':
+    def create_dominant_thirteenth(cls, root: Note) -> "Chord":
         """Create a dominant 13th chord from a root note."""
         return cls.build("dominant_thirteenth", root)
 
     @classmethod
-    def create_major_thirteenth(cls, root: Note) -> 'Chord':
+    def create_major_thirteenth(cls, root: Note) -> "Chord":
         """Create a major 13th chord from a root note."""
         return cls.build("major_thirteenth", root)
 
     @classmethod
-    def create_minor_thirteenth(cls, root: Note) -> 'Chord':
+    def create_minor_thirteenth(cls, root: Note) -> "Chord":
         """Create a minor 13th chord from a root note."""
         return cls.build("minor_thirteenth", root)
 
     @classmethod
-    def create_add9(cls, root: Note) -> 'Chord':
+    def create_add9(cls, root: Note) -> "Chord":
         """Create an add9 chord from a root note."""
         return cls.build("add9", root)
 
     @classmethod
-    def create_minor_add9(cls, root: Note) -> 'Chord':
+    def create_minor_add9(cls, root: Note) -> "Chord":
         """Create a minor add9 chord from a root note."""
         return cls.build("minor_add9", root)
 
     @classmethod
-    def create_add11(cls, root: Note) -> 'Chord':
+    def create_add11(cls, root: Note) -> "Chord":
         """Create an add11 chord from a root note."""
         return cls.build("add11", root)
 
     @classmethod
-    def create_augmented_seventh(cls, root: Note) -> 'Chord':
+    def create_augmented_seventh(cls, root: Note) -> "Chord":
         """Create an augmented 7th chord from a root note."""
         return cls.build("augmented_seventh", root)
 
     @classmethod
-    def create_augmented_major_seventh(cls, root: Note) -> 'Chord':
+    def create_augmented_major_seventh(cls, root: Note) -> "Chord":
         """Create an augmented major 7th chord from a root note."""
         return cls.build("augmented_major_seventh", root)

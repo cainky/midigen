@@ -18,3 +18,34 @@ from .protocol.instruments import INSTRUMENT_MAP
 from .api.midigen import MidiGen
 from .api.song import Song
 from .api.compiler import MidiCompiler
+
+__all__ = [
+    "Note",
+    "NOTE_ON",
+    "NOTE_OFF",
+    "Key",
+    "KEY_MAP",
+    "VALID_KEYS",
+    "Scale",
+    "TimeConverter",
+    "parse_roman_numeral",
+    "get_chord_pitches",
+    "Chord",
+    "CHORD_TYPES",
+    "ChordProgression",
+    "Arpeggio",
+    "ArpeggioPattern",
+    "DrumKit",
+    "Drum",
+    "GM1_DRUM_MAP",
+    "Melody",
+    "Section",
+    "Track",
+    "MAX_MIDI_TICKS",
+    "ChannelPool",
+    "ChannelExhaustedError",
+    "INSTRUMENT_MAP",
+    "MidiGen",
+    "Song",
+    "MidiCompiler",
+]

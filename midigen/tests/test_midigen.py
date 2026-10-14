@@ -151,7 +151,9 @@ class TestMidigen(unittest.TestCase):
 
         # Save without specifying output_dir (should save to current directory)
         filepath = self.midi_gen.save("test_default.mid")
-        self.assertTrue(os.path.exists(filepath), "MIDI file was not created in current directory.")
+        self.assertTrue(
+            os.path.exists(filepath), "MIDI file was not created in current directory."
+        )
 
         # Cleanup
         if os.path.exists(filepath):

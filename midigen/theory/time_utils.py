@@ -6,6 +6,29 @@ is defined by the MIDI file's resolution (typically 480 ticks per quarter note).
 """
 
 
+# Note lengths in quarter notes
+_NOTE_LENGTHS = {
+    "whole": 4,
+    "half": 2,
+    "quarter": 1,
+    "eighth": 1 / 2,
+    "sixteenth": 1 / 4,
+    "thirty_second": 1 / 8,
+    # Dotted notes (1.5x duration)
+    "dotted_whole": 6,
+    "dotted_half": 3,
+    "dotted_quarter": 3 / 2,
+    "dotted_eighth": 3 / 4,
+    "dotted_sixteenth": 3 / 8,
+    # Triplets (2/3 of normal duration)
+    "triplet_whole": 8 / 3,
+    "triplet_half": 4 / 3,
+    "triplet_quarter": 2 / 3,
+    "triplet_eighth": 1 / 3,
+    "triplet_sixteenth": 1 / 6,
+}
+
+
 class TimeConverter:
     """
     Utility class for converting between musical time units (measures, beats)
@@ -23,13 +46,17 @@ class TimeConverter:
         Args:
             ticks_per_quarter_note: Number of ticks in a quarter note (default: 480)
         """
-        if ticks_per_quarter_note <= 0:
-            raise ValueError("Ticks per quarter note must be positive")
+        if (
+            not isinstance(ticks_per_quarter_note, int)
+            or isinstance(ticks_per_quarter_note, bool)
+            or ticks_per_quarter_note <= 0
+        ):
+            raise ValueError("Ticks per quarter note must be a positive integer")
         self.ticks_per_quarter_note = ticks_per_quarter_note
 
     def beats_to_ticks(self, beats: float, beat_unit: int = 4) -> int:
         """
-        Convert beats to ticks.
+        Convert beats to ticks, rounded to the nearest tick.
 
         Args:
             beats: Number of beats
@@ -49,21 +76,22 @@ class TimeConverter:
         if beats < 0:
             raise ValueError("Beats must be non-negative")
         if beat_unit not in [1, 2, 4, 8, 16, 32]:
-            raise ValueError("Beat unit must be a valid note division (1, 2, 4, 8, 16, 32)")
+            raise ValueError(
+                "Beat unit must be a valid note division (1, 2, 4, 8, 16, 32)"
+            )
 
-        # Calculate ticks based on the beat unit
         # beat_unit=4 means quarter notes, beat_unit=8 means eighth notes, etc.
-        ticks_per_beat = self.ticks_per_quarter_note * (4 / beat_unit)
-        return int(beats * ticks_per_beat)
+        # Round rather than truncate: 2.05 beats is 983.9999... ticks in floating point
+        return round(beats * self.ticks_per_quarter_note * 4 / beat_unit)
 
     def measures_to_ticks(
         self,
         measures: float,
         time_signature_numerator: int = 4,
-        time_signature_denominator: int = 4
+        time_signature_denominator: int = 4,
     ) -> int:
         """
-        Convert measures (bars) to ticks.
+        Convert measures (bars) to ticks, rounded to the nearest tick.
 
         Args:
             measures: Number of measures
@@ -122,7 +150,7 @@ class TimeConverter:
         self,
         ticks: int,
         time_signature_numerator: int = 4,
-        time_signature_denominator: int = 4
+        time_signature_denominator: int = 4,
     ) -> float:
         """
         Convert ticks to measures (bars).
@@ -142,6 +170,8 @@ class TimeConverter:
         """
         if ticks < 0:
             raise ValueError("Ticks must be non-negative")
+        if time_signature_numerator <= 0 or time_signature_denominator <= 0:
+            raise ValueError("Time signature values must be positive")
 
         beats = self.ticks_to_beats(ticks, time_signature_denominator)
         beats_per_measure = time_signature_numerator
@@ -149,7 +179,7 @@ class TimeConverter:
 
     def note_duration(self, note_type: str) -> int:
         """
-        Get the duration in ticks for common note types.
+        Get the duration in ticks for common note types, rounded to the nearest tick.
 
         Args:
             note_type: One of: "whole", "half", "quarter", "eighth", "sixteenth",
@@ -166,32 +196,13 @@ class TimeConverter:
             >>> tc.note_duration("dotted_quarter")
             720
         """
-        durations = {
-            "whole": self.ticks_per_quarter_note * 4,
-            "half": self.ticks_per_quarter_note * 2,
-            "quarter": self.ticks_per_quarter_note,
-            "eighth": self.ticks_per_quarter_note // 2,
-            "sixteenth": self.ticks_per_quarter_note // 4,
-            "thirty_second": self.ticks_per_quarter_note // 8,
-            # Dotted notes (1.5x duration)
-            "dotted_whole": int(self.ticks_per_quarter_note * 6),
-            "dotted_half": int(self.ticks_per_quarter_note * 3),
-            "dotted_quarter": int(self.ticks_per_quarter_note * 1.5),
-            "dotted_eighth": int(self.ticks_per_quarter_note * 0.75),
-            "dotted_sixteenth": int(self.ticks_per_quarter_note * 0.375),
-            # Triplets (2/3 of normal duration)
-            "triplet_whole": int(self.ticks_per_quarter_note * 8/3),
-            "triplet_half": int(self.ticks_per_quarter_note * 4/3),
-            "triplet_quarter": int(self.ticks_per_quarter_note * 2/3),
-            "triplet_eighth": int(self.ticks_per_quarter_note / 3),
-            "triplet_sixteenth": int(self.ticks_per_quarter_note / 6),
-        }
+        if note_type not in _NOTE_LENGTHS:
+            valid_types = ", ".join(_NOTE_LENGTHS)
+            raise ValueError(
+                f"Invalid note type: {note_type}. Valid types: {valid_types}"
+            )
 
-        if note_type not in durations:
-            valid_types = ", ".join(durations.keys())
-            raise ValueError(f"Invalid note type: {note_type}. Valid types: {valid_types}")
-
-        return durations[note_type]
+        return round(self.ticks_per_quarter_note * _NOTE_LENGTHS[note_type])
 
     @staticmethod
     def bpm_to_microseconds_per_quarter(bpm: int) -> int:
@@ -211,7 +222,8 @@ class TimeConverter:
         """
         if bpm <= 0:
             raise ValueError("BPM must be positive")
-        return int(60_000_000 / bpm)
+        # Rounded like mido.bpm2tempo, so this matches the tempo written to MIDI files
+        return round(60_000_000 / bpm)
 
     @staticmethod
     def microseconds_per_quarter_to_bpm(microseconds: int) -> float:
