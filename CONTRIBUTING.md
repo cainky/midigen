@@ -44,7 +44,7 @@ uv run flake8 midigen example.py
 uv run --with black==23.3.0 black midigen example.py
 ```
 
-Or run every check before committing with `uv run pre-commit run --all-files`.
+Or run every check before committing with `uv run pre-commit run --all-files` (pre-commit is only installed on Python 3.11+).
 
 ### Tests and docs
 

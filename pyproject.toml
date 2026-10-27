@@ -13,7 +13,8 @@ dependencies = ["mido>=1.3.2,<2"]
 Repository = "https://github.com/cainky/midigen"
 
 [dependency-groups]
-dev = ["pre-commit>=3.6,<5.0", "flake8>=6.1,<8.0", "pytest>=9.0.1,<10"]
+# pre-commit pulls filelock via virtualenv; the patched filelock (>=4.2.1) needs 3.11+
+dev = ["pre-commit>=3.6,<5.0; python_version >= '3.11'", "flake8>=6.1,<8.0", "pytest>=9.0.1,<10"]
 
 [build-system]
 requires = ["hatchling"]
@@ -21,3 +22,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["midigen"]
+
+[tool.uv]
+# GHSA advisories for filelock ReadWriteLock/SoftFileLock, fixed in 4.2.1
+constraint-dependencies = ["filelock>=4.2.1"]
